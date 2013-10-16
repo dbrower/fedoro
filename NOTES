@@ -1,0 +1,502 @@
+// vim:foldmethod=marker
+
+URL: http://localhost:8983/fedora/objects/fedora-system%3AContentModel-3.0?format=xml
+OUTPUT: {{{
+<objectProfile xmlns="http://www.fedora.info/definitions/1/0/access/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fedora.info/definitions/1/0/access/ http://www.fedora.info/definitions/1/0/objectProfile.xsd" pid="fedora-system:ContentModel-3.0">
+    <objLabel>Content Model Object for Content Model Objects</objLabel>
+    <objOwnerId>fedoraAdmin</objOwnerId>
+    <objModels>
+        <model>info:fedora/fedora-system:ContentModel-3.0</model>
+        <model>info:fedora/fedora-system:FedoraObject-3.0</model>
+    </objModels>
+    <objCreateDate>2008-07-02T05:09:43.796Z</objCreateDate>
+    <objLastModDate>2013-10-10T11:07:33.426Z</objLastModDate>
+    <objDissIndexViewURL>
+        http://localhost:8983/fedora/objects/fedora-system%3AContentModel-3.0/methods/fedora-system%3A3/viewMethodIndex
+    </objDissIndexViewURL>
+    <objItemIndexViewURL>
+        http://localhost:8983/fedora/objects/fedora-system%3AContentModel-3.0/methods/fedora-system%3A3/viewItemIndex
+    </objItemIndexViewURL>
+    <objState>A</objState>
+</objectProfile>
+}}}
+
+SCHEMA: http://www.fedora.info/definitions/1/0/objectProfile.xsd {{{
+<xs:schema xmlns="http://www.fedora.info/definitions/1/0/access/" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.fedora.info/definitions/1/0/access/" elementFormDefault="qualified">
+<xs:element name="objectProfile">
+<xs:complexType>
+<xs:sequence>
+<xs:element ref="objLabel"/>
+<xs:element ref="objOwnerId"/>
+<xs:element ref="objModels"/>
+<xs:element ref="objCreateDate"/>
+<xs:element ref="objLastModDate"/>
+<xs:element ref="objDissIndexViewURL"/>
+<xs:element ref="objItemIndexViewURL"/>
+<xs:element ref="objState"/>
+</xs:sequence>
+<xs:attribute name="pid" use="required">
+<xs:simpleType>
+<xs:restriction base="xs:string"/>
+</xs:simpleType>
+</xs:attribute>
+</xs:complexType>
+</xs:element>
+<xs:element name="objCreateDate">
+<xs:simpleType>
+<xs:restriction base="xs:dateTime"/>
+</xs:simpleType>
+</xs:element>
+<xs:element name="objDissIndexViewURL">
+<xs:simpleType>
+<xs:restriction base="xs:anyURI"/>
+</xs:simpleType>
+</xs:element>
+<xs:element name="objItemIndexViewURL">
+<xs:simpleType>
+<xs:restriction base="xs:anyURI"/>
+</xs:simpleType>
+</xs:element>
+<xs:element name="objLabel">
+<xs:simpleType>
+<xs:restriction base="xs:string"/>
+</xs:simpleType>
+</xs:element>
+<xs:element name="objOwnerId">
+<xs:simpleType>
+<xs:restriction base="xs:string"/>
+</xs:simpleType>
+</xs:element>
+<xs:element name="objModels">
+<xs:complexType>
+<xs:sequence>
+<xs:element name="model" minOccurs="0" maxOccurs="unbounded" type="xs:string"/>
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+<xs:element name="objLastModDate">
+<xs:simpleType>
+<xs:restriction base="xs:dateTime"/>
+</xs:simpleType>
+</xs:element>
+<xs:element name="objState">
+<xs:simpleType>
+<xs:restriction base="xs:string"/>
+</xs:simpleType>
+</xs:element>
+</xs:schema>
+}}}
+
+URL: http://localhost:8983/fedora/objects/fedora-system%3AContentModel-3.0/datastreams?format=xml
+OUTPUT: {{{
+<objectDatastreams
+        xmlns="http://www.fedora.info/definitions/1/0/access/"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.fedora.info/definitions/1/0/access/ http://www.fedora-commons.org/definitions/1/0/listDatastreams.xsd"
+        pid="fedora-system:ContentModel-3.0"
+        baseURL="http://localhost:8983/fedora/">
+    <datastream dsid="DC" label="Dublin Core Record for this object" mimeType="text/xml"/>
+    <datastream dsid="RELS-EXT" label="RDF Statements about this object" mimeType="application/rdf+xml"/>
+    <datastream dsid="ONTOLOGY" label="Class declaration for this content model" mimeType="application/rdf+xml"/>
+    <datastream dsid="DS-COMPOSITE-MODEL" label="Datastream Composite Model" mimeType="text/xml"/>
+    <datastream dsid="DS-COMPOSITE-MODEL-SCHEMA" label="OAI DC xml schema" mimeType="text/xml"/>
+    <datastream dsid="RDF-SCHEMA" label="RDF xml schema" mimeType="text/xml"/>
+    <datastream dsid="OWL-SCHEMA" label="OWL xml schema" mimeType="text/xml"/>
+    <datastream dsid="RDFS-SCHEMA" label="OWL xml schema" mimeType="text/xml"/>
+</objectDatastreams>
+}}}
+
+SCHEMA: http://www.fedora-commons.org/definitions/1/0/listDatastreams.xsd {{{
+<xsd:schema xmlns="http://www.fedora.info/definitions/1/0/access/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.fedora.info/definitions/1/0/access/" elementFormDefault="qualified">
+    <!--  root element declaration  -->
+    <xsd:element name="objectDatastreams">
+        <xsd:complexType>
+            <xsd:complexContent>
+                <xsd:extension base="objectDatastreamsType"/>
+            </xsd:complexContent>
+        </xsd:complexType>
+    </xsd:element>
+    <!--  complex type declarations  -->
+    <xsd:complexType name="objectDatastreamsType">
+        <xsd:sequence>
+            <xsd:element name="datastream" type="datastreamType" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+        <xsd:attribute name="pid" type="xsd:string" use="required"/>
+        <xsd:attribute name="asOfDateTime" type="xsd:string" use="optional"/>
+        <xsd:attribute name="baseURL" type="xsd:string" use="required"/>
+    </xsd:complexType>
+    <xsd:complexType name="datastreamType">
+        <xsd:attribute name="dsid" type="xsd:string" use="required"/>
+        <xsd:attribute name="label" type="xsd:string" use="required"/>
+        <xsd:attribute name="mimeType" type="xsd:string" use="required"/>
+    </xsd:complexType>
+</xsd:schema>
+}}}
+
+URL: http://localhost:8983/fedora/objects/fedora-system%3AContentModel-3.0/datastreams/DC?format=xml
+OUTPUT: {{{
+<datastreamProfile xmlns="http://www.fedora.info/definitions/1/0/management/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fedora.info/definitions/1/0/management/ http://www.fedora.info/definitions/1/0/datastreamProfile.xsd" pid="fedora-system:ContentModel-3.0" dsID="DC">
+    <dsLabel>Dublin Core Record for this object</dsLabel>
+    <dsVersionID>DC1.0</dsVersionID>
+    <dsCreateDate>2008-07-02T05:09:44.015Z</dsCreateDate>
+    <dsState>A</dsState>
+    <dsMIME>text/xml</dsMIME>
+    <dsFormatURI>http://www.openarchives.org/OAI/2.0/oai_dc/</dsFormatURI>
+    <dsControlGroup>X</dsControlGroup>
+    <dsSize>429</dsSize>
+    <dsVersionable>false</dsVersionable>
+    <dsInfoType/>
+    <dsLocation>fedora-system:ContentModel-3.0+DC+DC1.0</dsLocation>
+    <dsLocationType/>
+    <dsChecksumType>DISABLED</dsChecksumType>
+    <dsChecksum>none</dsChecksum>
+</datastreamProfile>
+}}}
+
+SCHEMA: http://www.fedora.info/definitions/1/0/datastreamProfile.xsd {{{
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.fedora.info/definitions/1/0/management/" elementFormDefault="qualified">
+<xs:element name="datastreamProfile">
+<xs:complexType>
+<xs:sequence>
+<xs:element name="dsLabel" type="xs:string"/>
+<xs:element name="dsVersionID" type="xs:string"/>
+<xs:element name="dsCreateDate" type="xs:dateTime"/>
+<xs:element name="dsState">
+<xs:simpleType>
+<xs:restriction base="xs:string">
+<xs:enumeration value="A"/>
+<xs:enumeration value="D"/>
+<xs:enumeration value="I"/>
+</xs:restriction>
+</xs:simpleType>
+</xs:element>
+<xs:element name="dsMIME" type="xs:string"/>
+<xs:element name="dsFormatURI" type="xs:anyURI"/>
+<xs:element name="dsControlGroup">
+<xs:simpleType>
+<xs:restriction base="xs:string">
+<xs:enumeration value="X"/>
+<xs:enumeration value="M"/>
+<xs:enumeration value="R"/>
+<xs:enumeration value="E"/>
+</xs:restriction>
+</xs:simpleType>
+</xs:element>
+<xs:element name="dsSize" type="xs:integer"/>
+<xs:element name="dsVersionable">
+<xs:simpleType>
+<xs:restriction base="xs:string">
+<xs:enumeration value="true"/>
+<xs:enumeration value="false"/>
+</xs:restriction>
+</xs:simpleType>
+</xs:element>
+<xs:element name="dsInfoType" type="xs:string"/>
+<xs:element name="dsLocation" type="xs:string"/>
+<xs:element name="dsLocationType" type="xs:string"/>
+<xs:element name="dsChecksumType">
+<xs:simpleType>
+<xs:restriction base="xs:string">
+<xs:enumeration value="DEFAULT"/>
+<xs:enumeration value="DISABLED"/>
+<xs:enumeration value="MD5"/>
+<xs:enumeration value="SHA-1"/>
+<xs:enumeration value="SHA-256"/>
+<xs:enumeration value="SHA-385"/>
+<xs:enumeration value="SHA-512"/>
+<xs:enumeration value="HAVAL"/>
+<xs:enumeration value="TIGER"/>
+<xs:enumeration value="WHIRLPOOL"/>
+</xs:restriction>
+</xs:simpleType>
+</xs:element>
+<xs:element name="dsChecksum" type="xs:string"/>
+<xs:element name="dsChecksumValid" minOccurs="0">
+<xs:simpleType>
+<xs:restriction base="xs:string">
+<xs:enumeration value="true"/>
+<xs:enumeration value="false"/>
+</xs:restriction>
+</xs:simpleType>
+</xs:element>
+<xs:element name="dsAltID" minOccurs="0" maxOccurs="unbounded" type="xs:string"/>
+</xs:sequence>
+<xs:attribute name="pid" use="required">
+<xs:simpleType>
+<xs:restriction base="xs:string"/>
+</xs:simpleType>
+</xs:attribute>
+<xs:attribute name="dsID" use="required">
+<xs:simpleType>
+<xs:restriction base="xs:string"/>
+</xs:simpleType>
+</xs:attribute>
+<xs:attribute name="dateTime" use="optional">
+<xs:simpleType>
+<xs:restriction base="xs:dateTime"/>
+</xs:simpleType>
+</xs:attribute>
+</xs:complexType>
+</xs:element>
+</xs:schema>
+}}}
+
+URL: http://localhost:8983/fedora/objects/fedora-system%3AContentModel-3.0/datastreams/DC/history?format=xml
+OUTPUT: {{{
+<datastreamHistory xmlns="http://www.fedora.info/definitions/1/0/management/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fedora.info/definitions/1/0/management/ http://www.fedora.info/definitions/1/0/datastreamHistory.xsd" pid="fedora-system:ContentModel-3.0" dsID="DC">
+    <datastreamProfile pid="fedora-system:ContentModel-3.0" dsID="DC">
+        <dsLabel>Dublin Core Record for this object</dsLabel>
+        <dsVersionID>DC1.0</dsVersionID>
+        <dsCreateDate>2008-07-02T05:09:44.015Z</dsCreateDate>
+        <dsState>A</dsState>
+        <dsMIME>text/xml</dsMIME>
+        <dsFormatURI>http://www.openarchives.org/OAI/2.0/oai_dc/</dsFormatURI>
+        <dsControlGroup>X</dsControlGroup>
+        <dsSize>429</dsSize>
+        <dsVersionable>false</dsVersionable>
+        <dsInfoType/>
+        <dsLocation>fedora-system:ContentModel-3.0+DC+DC1.0</dsLocation>
+        <dsLocationType/>
+        <dsChecksumType>DISABLED</dsChecksumType>
+        <dsChecksum>none</dsChecksum>
+    </datastreamProfile>
+</datastreamHistory>
+}}}
+
+SCHEMA: http://www.fedora.info/definitions/1/0/datastreamHistory.xsd {{{
+<xs:schema xmlns:management="http://www.fedora.info/definitions/1/0/management/" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.fedora.info/definitions/1/0/management/" elementFormDefault="qualified">
+<xs:include schemaLocation="datastreamProfile.xsd"/>
+<xs:element name="datastreamHistory">
+<xs:complexType>
+<xs:sequence>
+<xs:element minOccurs="1" maxOccurs="unbounded" ref="management:datastreamProfile"/>
+</xs:sequence>
+<xs:attribute name="pid" use="required">
+<xs:simpleType>
+<xs:restriction base="xs:string"/>
+</xs:simpleType>
+</xs:attribute>
+<xs:attribute name="dsID" use="required">
+<xs:simpleType>
+<xs:restriction base="xs:string"/>
+</xs:simpleType>
+</xs:attribute>
+</xs:complexType>
+</xs:element>
+</xs:schema>
+
+
+URL: http://localhost:8983/fedora/objects/fedora-system%3AContentModel-3.0/datastreams?profiles=true
+OUTPUT:
+<objectDatastreams xmlns="http://www.fedora.info/definitions/1/0/access/" xmlns:apim="http://www.fedora.info/definitions/1/0/management/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fedora.info/definitions/1/0/access/ http://localhost:8983/fedora/schema/listDatastreams.xsd" pid="fedora-system:ContentModel-3.0" baseURL="http://localhost:8983/fedora/">
+    <datastreamProfile pid="fedora-system:ContentModel-3.0" dsID="DC">
+        <apim:dsLabel>Dublin Core Record for this object</apim:dsLabel>
+        <apim:dsVersionID>DC1.0</apim:dsVersionID>
+        <apim:dsCreateDate>2008-07-02T05:09:44.015Z</apim:dsCreateDate>
+        <apim:dsState>A</apim:dsState>
+        <apim:dsMIME>text/xml</apim:dsMIME>
+        <apim:dsFormatURI>http://www.openarchives.org/OAI/2.0/oai_dc/</apim:dsFormatURI>
+        <apim:dsControlGroup>X</apim:dsControlGroup>
+        <apim:dsSize>429</apim:dsSize>
+        <apim:dsVersionable>false</apim:dsVersionable>
+        <apim:dsInfoType/>
+        <apim:dsLocation>fedora-system:ContentModel-3.0+DC+DC1.0</apim:dsLocation>
+        <apim:dsLocationType/>
+        <apim:dsChecksumType>DISABLED</apim:dsChecksumType>
+        <apim:dsChecksum>none</apim:dsChecksum>
+    </datastreamProfile>
+    <datastreamProfile pid="fedora-system:ContentModel-3.0" dsID="RELS-EXT">
+        <apim:dsLabel>RDF Statements about this object</apim:dsLabel>
+        <apim:dsVersionID>RELS-EXT1.0</apim:dsVersionID>
+        <apim:dsCreateDate>2008-07-02T05:09:44.015Z</apim:dsCreateDate>
+        <apim:dsState>A</apim:dsState>
+        <apim:dsMIME>application/rdf+xml</apim:dsMIME>
+        <apim:dsFormatURI>info:fedora/fedora-system:FedoraRELSExt-1.0</apim:dsFormatURI>
+        <apim:dsControlGroup>X</apim:dsControlGroup>
+        <apim:dsSize>414</apim:dsSize>
+        <apim:dsVersionable>false</apim:dsVersionable>
+        <apim:dsInfoType/>
+        <apim:dsLocation>
+            fedora-system:ContentModel-3.0+RELS-EXT+RELS-EXT1.0
+        </apim:dsLocation>
+        <apim:dsLocationType/>
+        <apim:dsChecksumType>DISABLED</apim:dsChecksumType>
+        <apim:dsChecksum>none</apim:dsChecksum>
+    </datastreamProfile>
+    <datastreamProfile pid="fedora-system:ContentModel-3.0" dsID="ONTOLOGY">
+        <apim:dsLabel>Class declaration for this content model</apim:dsLabel>
+        <apim:dsVersionID>ONTOLOGY1.0</apim:dsVersionID>
+        <apim:dsCreateDate>2013-10-10T11:07:33.426Z</apim:dsCreateDate>
+        <apim:dsState>A</apim:dsState>
+        <apim:dsMIME>application/rdf+xml</apim:dsMIME>
+        <apim:dsFormatURI>info:fedora/fedora-system:FedoraOntology-1.0</apim:dsFormatURI>
+        <apim:dsControlGroup>X</apim:dsControlGroup>
+        <apim:dsSize>1270</apim:dsSize>
+        <apim:dsVersionable>false</apim:dsVersionable>
+        <apim:dsInfoType/>
+        <apim:dsLocation>
+            fedora-system:ContentModel-3.0+ONTOLOGY+ONTOLOGY1.0
+        </apim:dsLocation>
+        <apim:dsLocationType/>
+        <apim:dsChecksumType>DISABLED</apim:dsChecksumType>
+        <apim:dsChecksum>none</apim:dsChecksum>
+    </datastreamProfile>
+    <datastreamProfile pid="fedora-system:ContentModel-3.0" dsID="DS-COMPOSITE-MODEL">
+        <apim:dsLabel>Datastream Composite Model</apim:dsLabel>
+        <apim:dsVersionID>DS-COMPOSITE-MODEL1.0</apim:dsVersionID>
+        <apim:dsCreateDate>2008-07-02T05:09:44.015Z</apim:dsCreateDate>
+        <apim:dsState>A</apim:dsState>
+        <apim:dsMIME>text/xml</apim:dsMIME>
+        <apim:dsFormatURI>
+            info:fedora/fedora-system:FedoraDSCompositeModel-1.0
+        </apim:dsFormatURI>
+        <apim:dsControlGroup>X</apim:dsControlGroup>
+        <apim:dsSize>1135</apim:dsSize>
+        <apim:dsVersionable>false</apim:dsVersionable>
+        <apim:dsInfoType/>
+        <apim:dsLocation>
+            fedora-system:ContentModel-3.0+DS-COMPOSITE-MODEL+DS-COMPOSITE-MODEL1.0
+        </apim:dsLocation>
+        <apim:dsLocationType/>
+        <apim:dsChecksumType>DISABLED</apim:dsChecksumType>
+        <apim:dsChecksum>none</apim:dsChecksum>
+    </datastreamProfile>
+    <datastreamProfile pid="fedora-system:ContentModel-3.0" dsID="DS-COMPOSITE-MODEL-SCHEMA">
+        <apim:dsLabel>OAI DC xml schema</apim:dsLabel>
+        <apim:dsVersionID>DS-COMPOSITE-MODEL-SCHEMA1.0</apim:dsVersionID>
+        <apim:dsCreateDate>2013-10-10T11:07:33.426Z</apim:dsCreateDate>
+        <apim:dsState>A</apim:dsState>
+        <apim:dsMIME>text/xml</apim:dsMIME>
+        <apim:dsFormatURI/>
+        <apim:dsControlGroup>X</apim:dsControlGroup>
+        <apim:dsSize>2489</apim:dsSize>
+        <apim:dsVersionable>false</apim:dsVersionable>
+        <apim:dsInfoType/>
+        <apim:dsLocation>
+        fedora-system:ContentModel-3.0+DS-COMPOSITE-MODEL-SCHEMA+DS-COMPOSITE-MODEL-SCHEMA1.0
+        </apim:dsLocation>
+        <apim:dsLocationType/>
+        <apim:dsChecksumType>DISABLED</apim:dsChecksumType>
+        <apim:dsChecksum>none</apim:dsChecksum>
+        </datastreamProfile>
+        <datastreamProfile pid="fedora-system:ContentModel-3.0" dsID="RDF-SCHEMA">
+        <apim:dsLabel>RDF xml schema</apim:dsLabel>
+        <apim:dsVersionID>RDF-SCHEMA1.0</apim:dsVersionID>
+        <apim:dsCreateDate>2013-10-10T11:07:33.426Z</apim:dsCreateDate>
+        <apim:dsState>A</apim:dsState>
+        <apim:dsMIME>text/xml</apim:dsMIME>
+        <apim:dsFormatURI/>
+        <apim:dsControlGroup>X</apim:dsControlGroup>
+        <apim:dsSize>1189</apim:dsSize>
+        <apim:dsVersionable>false</apim:dsVersionable>
+        <apim:dsInfoType/>
+        <apim:dsLocation>
+        fedora-system:ContentModel-3.0+RDF-SCHEMA+RDF-SCHEMA1.0
+        </apim:dsLocation>
+        <apim:dsLocationType/>
+        <apim:dsChecksumType>DISABLED</apim:dsChecksumType>
+        <apim:dsChecksum>none</apim:dsChecksum>
+    </datastreamProfile>
+    <datastreamProfile pid="fedora-system:ContentModel-3.0" dsID="OWL-SCHEMA">
+        <apim:dsLabel>OWL xml schema</apim:dsLabel>
+        <apim:dsVersionID>OWL-SCHEMA1.0</apim:dsVersionID>
+        <apim:dsCreateDate>2013-10-10T11:07:33.426Z</apim:dsCreateDate>
+        <apim:dsState>A</apim:dsState>
+        <apim:dsMIME>text/xml</apim:dsMIME>
+        <apim:dsFormatURI/>
+        <apim:dsControlGroup>X</apim:dsControlGroup>
+        <apim:dsSize>3912</apim:dsSize>
+        <apim:dsVersionable>false</apim:dsVersionable>
+        <apim:dsInfoType/>
+        <apim:dsLocation>
+        fedora-system:ContentModel-3.0+OWL-SCHEMA+OWL-SCHEMA1.0
+        </apim:dsLocation>
+        <apim:dsLocationType/>
+        <apim:dsChecksumType>DISABLED</apim:dsChecksumType>
+        <apim:dsChecksum>none</apim:dsChecksum>
+    </datastreamProfile>
+    <datastreamProfile pid="fedora-system:ContentModel-3.0" dsID="RDFS-SCHEMA">
+        <apim:dsLabel>OWL xml schema</apim:dsLabel>
+        <apim:dsVersionID>RDFS-SCHEMA1.0</apim:dsVersionID>
+        <apim:dsCreateDate>2013-10-10T11:07:33.426Z</apim:dsCreateDate>
+        <apim:dsState>A</apim:dsState>
+        <apim:dsMIME>text/xml</apim:dsMIME>
+        <apim:dsFormatURI/>
+        <apim:dsControlGroup>X</apim:dsControlGroup>
+        <apim:dsSize>765</apim:dsSize>
+        <apim:dsVersionable>false</apim:dsVersionable>
+        <apim:dsInfoType/>
+        <apim:dsLocation>
+        fedora-system:ContentModel-3.0+RDFS-SCHEMA+RDFS-SCHEMA1.0
+        </apim:dsLocation>
+        <apim:dsLocationType/>
+        <apim:dsChecksumType>DISABLED</apim:dsChecksumType>
+        <apim:dsChecksum>none</apim:dsChecksum>
+    </datastreamProfile>
+</objectDatastreams>
+
+SCHEMA: http://localhost:8983/fedora/schema/listDatastreams.xsd
+<xsd:schema xmlns="http://www.fedora.info/definitions/1/0/access/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:apim="http://www.fedora.info/definitions/1/0/management/" xmlns:list="http://www.fedora.info/definitions/1/0/access/" targetNamespace="http://www.fedora.info/definitions/1/0/access/" elementFormDefault="qualified">
+<xsd:import namespace="http://www.fedora.info/definitions/1/0/management/" schemaLocation="datastreamProfile.xsd"/>
+<!--  root element declaration  -->
+<xsd:element name="objectDatastreams">
+<xsd:complexType>
+<xsd:complexContent>
+<xsd:extension base="objectDatastreamsType"/>
+</xsd:complexContent>
+</xsd:complexType>
+</xsd:element>
+<!--  complex type declarations  -->
+<xsd:complexType name="objectDatastreamsType">
+<xsd:choice>
+<xsd:sequence minOccurs="0" maxOccurs="unbounded">
+<xsd:element name="datastream" type="list:datastreamType"/>
+</xsd:sequence>
+<xsd:sequence minOccurs="0" maxOccurs="unbounded">
+<xsd:element name="datastreamProfile" type="apim:datastreamProfileType"/>
+</xsd:sequence>
+</xsd:choice>
+<xsd:attribute name="pid" type="xsd:string" use="required"/>
+<xsd:attribute name="asOfDateTime" type="xsd:string" use="optional"/>
+<xsd:attribute name="baseURL" type="xsd:string" use="required"/>
+</xsd:complexType>
+<xsd:complexType name="datastreamType">
+<xsd:attribute name="dsid" type="xsd:string" use="required"/>
+<xsd:attribute name="label" type="xsd:string" use="required"/>
+<xsd:attribute name="mimeType" type="xsd:string" use="required"/>
+</xsd:complexType>
+</xsd:schema>
+
+URL: http://localhost:8983/fedora/objects/fedora-system%3AContentModel-3.0/versions?format=xml
+OUTPUT:
+<fedoraObjectHistory xmlns="http://www.fedora.info/definitions/1/0/access/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fedora.info/definitions/1/0/access/ http://www.fedora.info/definitions/1/0/fedoraObjectHistory.xsd" pid="fedora-system:ContentModel-3.0">
+    <objectChangeDate>2008-07-02T05:09:44.015Z</objectChangeDate>
+    <objectChangeDate>2013-10-10T11:07:33.426Z</objectChangeDate>
+</fedoraObjectHistory>
+
+URL: http://localhost:8983/fedora/objects/fedora-system%3AContentModel-3.0/validate
+OUTPUT:
+<management:validation xmlns:management="http://www.fedora.info/definitions/1/0/management/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.fedora.info/definitions/1/0/management/ http://www.fedora.info/definitions/1/0/validation.xsd" pid="fedora-system:ContentModel-3.0" valid="true">
+    <management:asOfDateTime>2013-10-10T11:33:19.032Z</management:asOfDateTime>
+    <management:contentModels>
+        <management:model>info:fedora/fedora-system:FedoraObject-3.0</management:model>
+        <management:model>info:fedora/fedora-system:ContentModel-3.0</management:model>
+    </management:contentModels>
+    <management:problems></management:problems>
+    <management:datastreamProblems></management:datastreamProblems>
+</management:validation>
+
+
+URL: http://localhost:8983/fedora/objects/fedora-system%3AContentModel-3.0/relationships
+OUTPUT:
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+
+<rdf:Description rdf:about="info:fedora/fedora-system:ContentModel-3.0">
+	<hasModel xmlns="info:fedora/fedora-system:def/model#" rdf:resource="info:fedora/fedora-system:FedoraObject-3.0"/>
+	<hasModel xmlns="info:fedora/fedora-system:def/model#" rdf:resource="info:fedora/fedora-system:ContentModel-3.0"/>
+</rdf:Description>
+
+URL:

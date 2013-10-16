@@ -126,15 +126,12 @@ func DescribeHandler(res http.ResponseWriter, req *http.Request) {
     /search
 */
 
-    
 
-
-/
 
 func main() {
     fmt.Println("Starting Fedoro")
     r := mux.NewRouter()
-    r.HandleFunc("/describe", DescribeHandler).Methods("GET")
+    r.HandleFunc("/describe", DescribeHandler).Methods("GET", "HEAD")
     err := http.ListenAndServe(":8080", r)
     if err != nil {
         log.Fatal("ListenAndServe: ", err)

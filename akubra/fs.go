@@ -36,10 +36,6 @@ type Pool struct {
     Format string
 }
 
-type Repository struct {
-    ObjectStore, DatastreamStore Pool
-}
-
 func isAllLowerHex(name string) bool {
     for _, r := range name {
         switch {
@@ -124,7 +120,7 @@ func (p Pool) resolveName(id string) string {
     return prefix + "/" + url.QueryEscape(s1)
 }
 
-func (p Pool) GetReader(id string) (io.ReadCloser, Error) {
+func (p Pool) GetReader(id string) (io.ReadCloser, error) {
     path := p.resolveName(id)
     return os.Open(path)
 }
