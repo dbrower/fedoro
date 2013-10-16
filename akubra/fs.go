@@ -21,6 +21,8 @@ import (
     "net/url"
     "os"
     "strings"
+
+    "github.com/dbrower/fedoro/foxml"
 )
 
 var _ = fmt.Println
@@ -35,6 +37,11 @@ type Pool struct {
     // Defaults to ""
     Format string
 }
+
+type Repository struct {
+    objectStore, dsStore Pool
+}
+
 
 func isAllLowerHex(name string) bool {
     for _, r := range name {
@@ -124,4 +131,26 @@ func (p Pool) GetReader(id string) (io.ReadCloser, error) {
     path := p.resolveName(id)
     return os.Open(path)
 }
+
+// Return a new akubra repository with object info stored
+// at objectPath and datastream contents stored at dsPath
+func NewRepository(objectPath, dsPath string) Repository {
+	obj := Pool{Root: objectPath}
+    ds := Pool{Root: dsPath}
+    obj.Format = GuessFormat(objectPath)
+    ds.Format = GuessFormat(dsPath)
+    return Repository{objectStore: obj, dsStore: ds}
+}
+
+func (r Repository) FindPid(pid string) (foxml.DigitalObject, error) {
+    var d foxml.DigitalObject
+    f, err := r.objectStore.GetReader(pid)
+    if err != nil {
+        return d, err
+    }
+    defer f.Close()
+    d, err = foxml.DecodeFoxml(f)
+    return d, err
+}
+
 

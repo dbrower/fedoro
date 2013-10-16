@@ -6,22 +6,36 @@ import (
     "github.com/dbrower/fedoro/foxml"
 )
 
-type Repository struct {
-    objectStore, dsStore akubra.Pool
+type DatastreamVersion struct {
+    Id strin
+    Label strin
+    Created time.Time
+    Mimetype string
+    Format_uri string
+    Size uint
+    XmlContent XmlContent
+    ContentLocation ContentLocation
 }
 
-func NewRepository(object, ds akubra.Pool) Repository {
-    return Repository{objectStore: object, dsStore: ds}
+type Datastream struct {
+    Id string           `xml:"ID,attr"`
+    State string        `xml:"STATE,attr"`
+    ControlGroup string `xml:"CONTROL_GROUP,attr"`
+    Versionable bool    `xml:"VERSIONABLE,attr"`
+    Versions []DatastreamVersion `xml:"datastreamVersion"`
 }
 
-func (r Repository) FindPid(pid string) (foxml.DigitalObject, error) {
-    var d foxml.DigitalObject
-    f, err := r.objectStore.GetReader(pid)
-    if err != nil {
-        return d, err
-    }
-    defer f.Close()
-    d, err = foxml.DecodeFoxml(f)
-    return d, err
+type DigitalObject struct {
+	Pid string
+  State string
+    Label string
+    OwnerId string
+    CreatedDate time.Time
+    ModifiedDate time.Time
+    Ds []Datastream     `xml:"datastream"`
+}
+
+type Repository interface {
+    FindPid(string) (DigitalObject, error)
 }
 

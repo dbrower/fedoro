@@ -1,8 +1,6 @@
 /*
 Provides utility routines for loading digital objects from
 a foxml file.
-
-
 */
 package foxml
 
