@@ -8,9 +8,7 @@ import (
 )
 
 func newRepo() Repository {
-    var obj = akubra.Pool{Root: ".", Format: "##" }
-    var ds = akubra.Pool{Root: ".", Format: "##" }
-    return NewRepository(obj, ds)
+	return akubra.NewRepository(".", ".")
 }
 
 func TestNewRepository(t *testing.T) {
