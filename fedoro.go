@@ -1,16 +1,15 @@
-
 package main
 
 import (
-    "fmt"
-    "net/http"
-    "html/template"
-    "log"
+	"fmt"
+	"html/template"
+	"log"
+	"net/http"
 
-    "github.com/gorilla/mux"
+	"github.com/gorilla/mux"
 
-	"github.com/dbrower/fedoro/fedoro"
 	"github.com/dbrower/fedoro/akubra"
+	"github.com/dbrower/fedoro/fedoro"
 )
 
 const describeText = `<html><head><title>Describe Repository</title></head>
@@ -18,11 +17,12 @@ const describeText = `<html><head><title>Describe Repository</title></head>
 <h1>Fedoro</h1>
 </body>
 `
+
 var dt = template.Must(template.New("describe").Parse(describeText))
 
 func DescribeHandler(res http.ResponseWriter, req *http.Request) {
-    res.Header().Set("Content-Type", "text/html")
-    dt.Execute(res, nil)
+	res.Header().Set("Content-Type", "text/html")
+	dt.Execute(res, nil)
 }
 
 /*
@@ -108,40 +108,37 @@ func DescribeHandler(res http.ResponseWriter, req *http.Request) {
 
 /* Read Only APIs
 
-    /describe
-    /get/:pid
-    /get/:pid/:ds
-    /getObjectHistory/:pid
-    /listDatastreams/:pid
-    /listMethods/:pid
-    /objects
-    /objects/:pid
-    /objects/:pid/datastreams
-    /objects/:pid/datastreams/:ds
-    /objects/:pid/datastreams/:ds/content
-    /objects/:pid/datastreams/:ds/history
-    /objects/:pid/export
-    /objects/:pid/methods
-    /objects/:pid/objectXML
-    /objects/:pid/relationships
-    /objects/:pid/validate
-    /objects/:pid/versions
-    /search
+   /describe
+   /get/:pid
+   /get/:pid/:ds
+   /getObjectHistory/:pid
+   /listDatastreams/:pid
+   /listMethods/:pid
+   /objects
+   /objects/:pid
+   /objects/:pid/datastreams
+   /objects/:pid/datastreams/:ds
+   /objects/:pid/datastreams/:ds/content
+   /objects/:pid/datastreams/:ds/history
+   /objects/:pid/export
+   /objects/:pid/methods
+   /objects/:pid/objectXML
+   /objects/:pid/relationships
+   /objects/:pid/validate
+   /objects/:pid/versions
+   /search
 */
 
-
-
 func main() {
-    fmt.Println("Starting Fedoro")
+	fmt.Println("Starting Fedoro")
 
 	fedoro.MainRepo = akubra.NewRepository("fedoro/test-repo", "fedoro/test-repo")
 
-
-    r := mux.NewRouter()
-    r.HandleFunc("/describe", DescribeHandler).Methods("GET", "HEAD")
-    r.HandleFunc("/objects/{pid}/datastreams", fedoro.ListDatastreamsHandler).Methods("GET", "HEAD")
+	r := mux.NewRouter()
+	r.HandleFunc("/describe", DescribeHandler).Methods("GET", "HEAD")
+	r.HandleFunc("/objects/{pid}/datastreams", fedoro.ListDatastreamsHandler).Methods("GET", "HEAD")
 	err := http.ListenAndServe(":8080", r)
-    if err != nil {
-        log.Fatal("ListenAndServe: ", err)
-    }
+	if err != nil {
+		log.Fatal("ListenAndServe: ", err)
+	}
 }

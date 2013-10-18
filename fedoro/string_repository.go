@@ -1,4 +1,3 @@
-
 package fedoro
 
 import (
@@ -18,4 +17,3 @@ func (r StringRepository) FindPid(pid string) (foxml.DigitalObject, error) {
 	// should be an error instead of nil
 	return foxml.DigitalObject{}, nil
 }
-
