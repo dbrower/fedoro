@@ -128,7 +128,7 @@ func (p Pool) resolveName(id string) string {
 }
 
 func (p Pool) GetReader(id string) (io.ReadCloser, error) {
-    path := p.resolveName(id)
+    path := p.Root + "/" + p.resolveName(id)
     return os.Open(path)
 }
 

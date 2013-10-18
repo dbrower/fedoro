@@ -7,6 +7,10 @@ import (
     "github.com/dbrower/fedoro/foxml"
 )
 
+var (
+	MainRepo Repository
+)
+
 type Repository interface {
     FindPid(string) (foxml.DigitalObject, error)
 }

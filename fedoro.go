@@ -8,6 +8,9 @@ import (
     "log"
 
     "github.com/gorilla/mux"
+
+	"github.com/dbrower/fedoro/fedoro"
+	"github.com/dbrower/fedoro/akubra"
 )
 
 const describeText = `<html><head><title>Describe Repository</title></head>
@@ -130,9 +133,14 @@ func DescribeHandler(res http.ResponseWriter, req *http.Request) {
 
 func main() {
     fmt.Println("Starting Fedoro")
+
+	fedoro.MainRepo = akubra.NewRepository("fedoro/test-repo", "fedoro/test-repo")
+
+
     r := mux.NewRouter()
     r.HandleFunc("/describe", DescribeHandler).Methods("GET", "HEAD")
-    err := http.ListenAndServe(":8080", r)
+    r.HandleFunc("/objects/{pid}/datastreams", fedoro.ListDatastreamsHandler).Methods("GET", "HEAD")
+	err := http.ListenAndServe(":8080", r)
     if err != nil {
         log.Fatal("ListenAndServe: ", err)
     }

@@ -8,7 +8,7 @@ import (
 )
 
 func newRepo() Repository {
-	return akubra.NewRepository(".", ".")
+	return akubra.NewRepository("test-repo", "test-repo")
 }
 
 func TestNewRepository(t *testing.T) {

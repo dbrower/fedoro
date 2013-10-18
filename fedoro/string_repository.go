@@ -15,13 +15,7 @@ func (r StringRepository) FindPid(pid string) (foxml.DigitalObject, error) {
 			return d, nil
 		}
 	}
-	return foxml.DigitalObject{}, error("Pid not found")
+	// should be an error instead of nil
+	return foxml.DigitalObject{}, nil
 }
 
-func (r StringRepository) Doit() int {
-	return 42;
-}
-
-func ab(r Repository) {
-	r.Doit()
-}

@@ -5,7 +5,5 @@ import (
 	"testing"
 )
 
-func TestAb(t *testing.T) {
-	s := StringRepository{}
-	ab(s)
+func TestStringRepository(t *testing.T) {
 }

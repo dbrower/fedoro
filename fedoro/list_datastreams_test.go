@@ -3,10 +3,11 @@ package fedoro
 
 import (
     "testing"
+
+	"github.com/dbrower/fedoro/akubra"
 )
 
 func TestListDatastreams(t *testing.T) {
-    var r Repository
-    
-    ListDatastreams(r, "12345")
+    r := akubra.NewRepository("test-repo", "test-repo")
+    ListDatastreams(r, "vecnet:x920fw85p")
 }
