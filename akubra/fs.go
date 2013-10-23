@@ -18,6 +18,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/url"
 	"os"
 	"strings"
@@ -130,6 +131,42 @@ func (p Pool) GetReader(id string) (io.ReadCloser, error) {
 	return os.Open(path)
 }
 
+func (r Repository) FindDatastream(dsid string) (io.ReadCloser, error) {
+	f, err := r.datastreamStore.GetReader(pid)
+	if err != nil {
+	}
+}
+
+func GetDatastream(do foxml.DigitalObject, name string) *foxml.Datastream {
+	for i, ds := range do.Ds {
+		if ds.Id == name {
+			return &do.Ds[i]
+		}
+	}
+	return nil
+}
+
+func GetDatastreamVersion(ds foxml.Datastream, version int) *foxml.DatastreamVersion {
+	// This is a nieve way of doing this...might break if datastreams
+	// are not stored from oldest to newest in the foxml
+	if version < -1 {
+		return nil
+	}
+	if version == -1 {
+		version = len(ds.Versions) - 1
+	}
+	return ds.Versions[version]
+}
+
+func GetDatastreamAndVersion(do foxml.DigitalObject, name string, version int) (*foxml.Datastream, *foxml.DatastreamVersion) {
+	var dsv *foxml.DatastreamVersion
+	ds := GetDatastream(do)
+	if ds != nil {
+		dsv = GetDatastreamVersion(ds, version)
+	}
+	return ds, dsv
+}
+
 // Return a new akubra repository with object info stored
 // at objectPath and datastream contents stored at dsPath
 func NewRepository(objectPath, dsPath string) Repository {
@@ -140,44 +177,99 @@ func NewRepository(objectPath, dsPath string) Repository {
 	return Repository{objectStore: obj, dsStore: ds}
 }
 
-type foxmlDo foxml.DigitalObject
+type foxmlObject struct {
+	repository Repository
+	obj        foxml.DigitalObject
+}
 
-func (r Repository) FindPid(pid string) (*fedoro.DigitalObject, error) {
+func (r Repository) FindPid(pid string) (*foxmlObject, error) {
 	f, err := r.objectStore.GetReader(pid)
 	if err != nil {
 		return nil, err
 	}
 	defer f.Close()
-	d, err = foxml.DecodeFoxml(f)
-    if err != nil {
-        return nil, err
-    }
-    return &d
+	d, err := foxml.DecodeFoxml(f)
+	if err != nil {
+		return nil, err
+	}
+	return &foxmlObject{
+		repository: r,
+		obj:        d,
+	}
 }
 
-func (d *foxmlDo) Info() *ObjectInfo {
-    // change this to cache?
-    return &fedoro.DigitalObject{
-        Pid: d.Pid,
-        Version: d.Version,
-        State: d.State,
-        Label: d.Label,
-        OwnerId: d.OwnerId,
-        CreatedDate: d.CreatedDate,
-        ModifiedDate: d.ModifiedDate
-    }
+func (fo *foxmlObject) Info() *fedoro.ObjectInfo {
+	// TODO: change this to cache
+	d := fo.obj
+	return &fedoro.ObjectInfo{
+		Pid:          d.Pid,
+		Version:      d.Version,
+		State:        d.State,
+		Label:        d.Label,
+		OwnerId:      d.OwnerId,
+		CreatedDate:  d.CreatedDate,
+		ModifiedDate: d.ModifiedDate,
+	}
 }
 
-func (r Repository) FindDatastream(dsid string) (io.ReadCloser, error) {
-    f, err := r.datastreamStore.GetReader(pid)
-    if err
+func (d *foxmlObject) DsNames() []string {
+	d := fo.obj
+	result := make([]string, 0, 3)
+	for _, ds := range d.Ds {
+		result = append(result, ds.Id)
+	}
+	return result
 }
 
-func GetDatastream(do DigitalObject, dataStream string) *Datastream {
-    for i, ds := range do.Ds {
-        if ds.Id == dataStream {
-            return &do.Ds[i]
-        }
-    }
-    return nil
+func (d *foxmlObject) DsInfo(dsid string, version int) *foxml.DatastreamInfo {
+	d := fo.obj
+	ds := GetDatastream(d, dsid)
+	if ds == nil {
+		return nil
+	}
+	dsv := GetDatastreamVersion(ds, version)
+	if dsv == nil {
+		return nil
+	}
+
+	return &fedoro.DatastreamInfo{
+		Name:         ds.Id,
+		State:        ds.State,
+		ControlGroup: ds.ControlGroup,
+		Versionable:  ds.Versionable,
+		NumVersions:  len(ds.Versions),
+		Id:           dsv.Id,
+		Label:        dsv.Label,
+		Created:      dsv.Created,
+		Mimetype:     dsv.Mimetype,
+		Format_uri:   dsv.Format_uri,
+		Size:         dsv.Size,
+	}
+}
+
+func (d *foxmlObject) DsContent(dsid string, version int) (io.Reader, error) {
+	d := fo.obj
+	ds := GetDatastream(d, dsid)
+	if ds == nil {
+		return nil
+	}
+	dsv := GetDatastreamVersion(ds, version)
+	if dsv == nil {
+		return nil
+	}
+
+	if dsv.XmlContent.Contents != nil {
+		return ioutil.NopCloser(strings.NewReader(dsv.XmlContent.Contents)), nil
+	}
+
+	switch ds.ControlGroup {
+	case 'M':
+		// Need to fetch contents from disk
+
+		return fo.repository.dsStore.GetReader(dsv.ContentLocation)
+
+	default:
+		// TODO: this needs to return an error
+		return nil
+	}
 }
