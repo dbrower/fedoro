@@ -32,11 +32,15 @@ type objectProfile struct {
     SchemaLocation string `xml:"xsi:schemaLocation,attr"`
 }
 
-func ObjectModels(do foxml.DigitalObject) []string {
+func ObjectModels(r Repository, do foxml.DigitalObject) []string {
 	p := goraptor.NewParser("guess")
 	defer p.Free()
 	
 	result := make([]string, 0, 3)
+    ds := foxml.GetDatastream(do, "RELS-EXT")
+    content := r.GetMostRecentContent(ds)
+    // assume most recent version is last
+    dsv := ds.Versions[len(ds.Versions) - 1]
 	
 	ch := p.Parse(, "http://localhost")
 	for {

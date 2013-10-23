@@ -140,13 +140,44 @@ func NewRepository(objectPath, dsPath string) Repository {
 	return Repository{objectStore: obj, dsStore: ds}
 }
 
-func (r Repository) FindPid(pid string) (foxml.DigitalObject, error) {
-	var d foxml.DigitalObject
+type foxmlDo foxml.DigitalObject
+
+func (r Repository) FindPid(pid string) (*fedoro.DigitalObject, error) {
 	f, err := r.objectStore.GetReader(pid)
 	if err != nil {
-		return d, err
+		return nil, err
 	}
 	defer f.Close()
 	d, err = foxml.DecodeFoxml(f)
-	return d, err
+    if err != nil {
+        return nil, err
+    }
+    return &d
+}
+
+func (d *foxmlDo) Info() *ObjectInfo {
+    // change this to cache?
+    return &fedoro.DigitalObject{
+        Pid: d.Pid,
+        Version: d.Version,
+        State: d.State,
+        Label: d.Label,
+        OwnerId: d.OwnerId,
+        CreatedDate: d.CreatedDate,
+        ModifiedDate: d.ModifiedDate
+    }
+}
+
+func (r Repository) FindDatastream(dsid string) (io.ReadCloser, error) {
+    f, err := r.datastreamStore.GetReader(pid)
+    if err
+}
+
+func GetDatastream(do DigitalObject, dataStream string) *Datastream {
+    for i, ds := range do.Ds {
+        if ds.Id == dataStream {
+            return &do.Ds[i]
+        }
+    }
+    return nil
 }
