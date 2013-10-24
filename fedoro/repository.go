@@ -1,9 +1,8 @@
 package fedoro
 
 import (
-	//	"time"
-	//    "github.com/dbrower/fedoro/akubra"
-	"github.com/dbrower/fedoro/foxml"
+	"io"
+	"time"
 )
 
 var (
@@ -50,5 +49,5 @@ type DatastreamInfo struct {
 }
 
 type Repository interface {
-	FindPid(string) (*DigitalObject, error)
+	FindPid(string) (DigitalObject, error)
 }

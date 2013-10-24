@@ -23,24 +23,11 @@ import (
 	"os"
 	"strings"
 
+	"github.com/dbrower/fedoro/fedoro"
 	"github.com/dbrower/fedoro/foxml"
 )
 
 var _ = fmt.Println
-
-// The basic type which defines an akubra storage pool.
-type Pool struct {
-	// The absolute file path to the root directory of this pool
-	Root string
-	// The format of the sub-directories. Consists of a sequence of hash-marks
-	// with optional embedded forward slashes. E.g. "##" or "#/##".
-	// Defaults to ""
-	Format string
-}
-
-type Repository struct {
-	objectStore, dsStore Pool
-}
 
 func isAllLowerHex(name string) bool {
 	for _, r := range name {
@@ -59,7 +46,7 @@ func isAllLowerHex(name string) bool {
 // Expects to find a directory containing directories all of which have names
 // that are the same number of lowercase hex characters. It then recurses to
 // build the format string.
-func GuessFormat(root string) string {
+func guessFormat(root string) string {
 	dir, err := os.Open(root)
 	if err != nil {
 		return ""
@@ -87,11 +74,21 @@ func GuessFormat(root string) string {
 	}
 
 	segement := strings.Repeat("#", length)
-	subformat := GuessFormat(root + "/" + fiList[0].Name())
+	subformat := guessFormat(root + "/" + fiList[0].Name())
 	if subformat != "" {
 		return segement + "/" + subformat
 	}
 	return segement
+}
+
+// The basic type which defines an akubra storage pool.
+type pool struct {
+	// The absolute file path to the root directory of this pool
+	Root string
+	// The format of the sub-directories. Consists of a sequence of hash-marks
+	// with optional embedded forward slashes. E.g. "##" or "#/##".
+	// Defaults to ""
+	Format string
 }
 
 // Given an id, return the relative path name of the object
@@ -108,7 +105,7 @@ func GuessFormat(root string) string {
 //
 // For example the id 'fedora-system:FedoraObject-3.0' with a pool having
 // format string '##' resolves to 'e5/info%3Afedora%2Ffedora-system%3AFedoraObject-3.0'
-func (p Pool) resolveName(id string) string {
+func (p pool) resolveName(id string) string {
 	s1 := "info:fedora/" + id
 	h := md5.New()
 	io.WriteString(h, s1)
@@ -126,18 +123,12 @@ func (p Pool) resolveName(id string) string {
 	return prefix + "/" + url.QueryEscape(s1)
 }
 
-func (p Pool) GetReader(id string) (io.ReadCloser, error) {
+func (p pool) getReader(id string) (io.ReadCloser, error) {
 	path := p.Root + "/" + p.resolveName(id)
 	return os.Open(path)
 }
 
-func (r Repository) FindDatastream(dsid string) (io.ReadCloser, error) {
-	f, err := r.datastreamStore.GetReader(pid)
-	if err != nil {
-	}
-}
-
-func GetDatastream(do foxml.DigitalObject, name string) *foxml.Datastream {
+func getDatastream(do *foxml.DigitalObject, name string) *foxml.Datastream {
 	for i, ds := range do.Ds {
 		if ds.Id == name {
 			return &do.Ds[i]
@@ -146,7 +137,7 @@ func GetDatastream(do foxml.DigitalObject, name string) *foxml.Datastream {
 	return nil
 }
 
-func GetDatastreamVersion(ds foxml.Datastream, version int) *foxml.DatastreamVersion {
+func getDatastreamVersion(ds *foxml.Datastream, version int) *foxml.DatastreamVersion {
 	// This is a nieve way of doing this...might break if datastreams
 	// are not stored from oldest to newest in the foxml
 	if version < -1 {
@@ -155,35 +146,34 @@ func GetDatastreamVersion(ds foxml.Datastream, version int) *foxml.DatastreamVer
 	if version == -1 {
 		version = len(ds.Versions) - 1
 	}
-	return ds.Versions[version]
+	return &ds.Versions[version]
 }
 
-func GetDatastreamAndVersion(do foxml.DigitalObject, name string, version int) (*foxml.Datastream, *foxml.DatastreamVersion) {
+func getDatastreamAndVersion(do *foxml.DigitalObject, name string, version int) (*foxml.Datastream, *foxml.DatastreamVersion) {
 	var dsv *foxml.DatastreamVersion
-	ds := GetDatastream(do)
+	ds := getDatastream(do, name)
 	if ds != nil {
-		dsv = GetDatastreamVersion(ds, version)
+		dsv = getDatastreamVersion(ds, version)
 	}
 	return ds, dsv
+}
+
+type Repository struct {
+	objectStore, dsStore pool
 }
 
 // Return a new akubra repository with object info stored
 // at objectPath and datastream contents stored at dsPath
 func NewRepository(objectPath, dsPath string) Repository {
-	obj := Pool{Root: objectPath}
-	ds := Pool{Root: dsPath}
-	obj.Format = GuessFormat(objectPath)
-	ds.Format = GuessFormat(dsPath)
+	obj := pool{Root: objectPath}
+	ds := pool{Root: dsPath}
+	obj.Format = guessFormat(objectPath)
+	ds.Format = guessFormat(dsPath)
 	return Repository{objectStore: obj, dsStore: ds}
 }
 
-type foxmlObject struct {
-	repository Repository
-	obj        foxml.DigitalObject
-}
-
-func (r Repository) FindPid(pid string) (*foxmlObject, error) {
-	f, err := r.objectStore.GetReader(pid)
+func (r Repository) FindPid(pid string) (*FoxmlObject, error) {
+	f, err := r.objectStore.getReader(pid)
 	if err != nil {
 		return nil, err
 	}
@@ -192,13 +182,18 @@ func (r Repository) FindPid(pid string) (*foxmlObject, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &foxmlObject{
-		repository: r,
-		obj:        d,
-	}
+	return &FoxmlObject{
+		repository: &r,
+		obj:        &d,
+	}, nil
 }
 
-func (fo *foxmlObject) Info() *fedoro.ObjectInfo {
+type FoxmlObject struct {
+	repository *Repository
+	obj        *foxml.DigitalObject
+}
+
+func (fo FoxmlObject) Info() *fedoro.ObjectInfo {
 	// TODO: change this to cache
 	d := fo.obj
 	return &fedoro.ObjectInfo{
@@ -212,7 +207,7 @@ func (fo *foxmlObject) Info() *fedoro.ObjectInfo {
 	}
 }
 
-func (d *foxmlObject) DsNames() []string {
+func (fo FoxmlObject) DsNames() []string {
 	d := fo.obj
 	result := make([]string, 0, 3)
 	for _, ds := range d.Ds {
@@ -221,13 +216,13 @@ func (d *foxmlObject) DsNames() []string {
 	return result
 }
 
-func (d *foxmlObject) DsInfo(dsid string, version int) *foxml.DatastreamInfo {
+func (fo FoxmlObject) DsInfo(dsid string, version int) *fedoro.DatastreamInfo {
 	d := fo.obj
-	ds := GetDatastream(d, dsid)
+	ds := getDatastream(d, dsid)
 	if ds == nil {
 		return nil
 	}
-	dsv := GetDatastreamVersion(ds, version)
+	dsv := getDatastreamVersion(ds, version)
 	if dsv == nil {
 		return nil
 	}
@@ -247,29 +242,34 @@ func (d *foxmlObject) DsInfo(dsid string, version int) *foxml.DatastreamInfo {
 	}
 }
 
-func (d *foxmlObject) DsContent(dsid string, version int) (io.Reader, error) {
+func (fo FoxmlObject) DsContent(dsid string, version int) (io.ReadCloser, error) {
 	d := fo.obj
-	ds := GetDatastream(d, dsid)
+	ds := getDatastream(d, dsid)
 	if ds == nil {
-		return nil
+		// TODO: return error!
+		return nil, nil
 	}
-	dsv := GetDatastreamVersion(ds, version)
+	dsv := getDatastreamVersion(ds, version)
 	if dsv == nil {
-		return nil
+		// TODO: return error!
+		return nil, nil
 	}
 
-	if dsv.XmlContent.Contents != nil {
+	if dsv.XmlContent.Contents != "" {
 		return ioutil.NopCloser(strings.NewReader(dsv.XmlContent.Contents)), nil
 	}
 
 	switch ds.ControlGroup {
 	case 'M':
 		// Need to fetch contents from disk
-
-		return fo.repository.dsStore.GetReader(dsv.ContentLocation)
+		if dsv.ContentLocation.Kind == "INTERNAL" {
+			return fo.repository.dsStore.getReader(dsv.ContentLocation.Ref)
+		}
+		// TODO: return error
+		return nil, nil
 
 	default:
 		// TODO: this needs to return an error
-		return nil
+		return nil, nil
 	}
 }

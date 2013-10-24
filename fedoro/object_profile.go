@@ -8,8 +8,6 @@ import (
 
 	"bitbucket.org/ww/goraptor"
 	"github.com/gorilla/mux"
-
-	"github.com/dbrower/fedoro/foxml"
 )
 
 type objectProfile struct {
@@ -29,18 +27,19 @@ type objectProfile struct {
 	SchemaLocation string `xml:"xsi:schemaLocation,attr"`
 }
 
-func ObjectModels(do foxml.DigitalObject) []string {
+func ObjectModels(do DigitalObject) []string {
 	rdf := goraptor.NewParser("guess")
 	defer rdf.Free()
 
 	result := make([]string, 0, 3)
 
-	ds := foxml.GetDatastream(do, "RELS-EXT")
-	content := r.GetMostRecentContent(ds)
-	// assume most recent version is last
-	dsv := ds.Versions[len(ds.Versions)-1]
+	content, err := do.DsContent("RELS-EXT", -1)
+	if err != nil {
+		// TODO: handle error
+	}
+	defer content.Close()
 
-	ch := rdf.Parse(do.GetContent("RELS-EXT", -1), "http://localhost")
+	ch := rdf.Parse(content, "http://localhost")
 	for statement := range ch {
 		m := statement.Predicate.String()
 		if m == "info:fedora/fedora-system:def/model#hasModel" {
@@ -58,13 +57,15 @@ func ObjectProfile(r Repository, pid string) (*objectProfile, error) {
 		return nil, err
 	}
 
+	info := object.Info()
+
 	result := &objectProfile{
 		Pid:         pid,
-		Label:       object.Label,
-		State:       object.State,
-		OwnerId:     object.OwnerId,
-		CreateDate:  object.CreatedDate,
-		LastModDate: object.ModifiedDate,
+		Label:       info.Label,
+		State:       info.State,
+		OwnerId:     info.OwnerId,
+		CreateDate:  info.CreatedDate,
+		LastModDate: info.ModifiedDate,
 	}
 
 	result.Xmlns = "http://www.fedora.info/definitions/1/0/access/"

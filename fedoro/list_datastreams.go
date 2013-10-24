@@ -35,14 +35,13 @@ func ListDatastreams(r Repository, pid string) (*objectDatastreams, error) {
 	}
 
 	result := &objectDatastreams{Pid: pid}
-	result.Datastream = make([]dsType, 0, len(object.Ds))
-	for _, ds := range object.Ds {
-		if ds.Id == "AUDIT" {
+	dsNames := object.DsNames()
+	for _, name := range dsNames {
+		if name == "AUDIT" {
 			continue
 		}
-		// assume last version is the newest
-		dsv := ds.Versions[len(ds.Versions)-1]
-		a := dsType{Dsid: ds.Id, Label: dsv.Label, MimeType: dsv.Mimetype}
+		info := object.DsInfo(name, -1)
+		a := dsType{Dsid: info.Name, Label: info.Label, MimeType: info.Mimetype}
 		result.Datastream = append(result.Datastream, a)
 	}
 
