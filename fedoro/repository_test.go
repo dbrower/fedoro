@@ -2,8 +2,6 @@ package fedoro
 
 import (
 	"testing"
-
-	"github.com/dbrower/fedoro/akubra"
 )
 
 func newRepo() Repository {
