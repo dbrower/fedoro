@@ -9,6 +9,15 @@ var (
 	MainRepo Repository
 )
 
+type Repository interface {
+	// Find the object with the given identifier.
+	// errors: could not find pid, or possibly other errors
+	FindPid(pid string) (DigitalObject, error)
+	// Create a new object and return a DigitalObject which represents it
+	// It is the callers responsibility to choose the PID of the new object
+	NewObject(obj ObjectInfo) (DigitalObject, error)
+}
+
 type DigitalObject interface {
 	Info() *ObjectInfo
 	DsNames() []string
@@ -20,6 +29,15 @@ type DigitalObject interface {
 	// Get the content for datastream dsid at the given version (0 is first version, 1 is next, etc.)
 	// Set version to -1 to always get the newest version
 	DsContent(dsid string, version int) (io.ReadCloser, error)
+
+	/*
+	   // Update the object's info to what is given
+	   UpdateInfo(obj *ObjectInfo) error
+	   // Create a new datastream
+	   AddDatastream(dsinfo *DatastreamInfo) error
+	   // create a new version of a datastream
+	   ReplaceContent(dsid string, r io.Reader) error
+	*/
 }
 
 // The general information about a digital object
@@ -46,8 +64,4 @@ type DatastreamInfo struct {
 	Mimetype   string
 	Format_uri string // Not sure what this is
 	Size       uint
-}
-
-type Repository interface {
-	FindPid(string) (DigitalObject, error)
 }

@@ -10,18 +10,8 @@ type MemoryRepository struct {
 	items map[string]MemDigitalObject
 }
 
-type MemDigitalObject struct {
-	ObjectInfo
-	ds []MemDatastream
-}
-
-type MemDatastream struct {
-	DatastreamInfo
-	content string
-}
-
 func NewMemRepo() Repository {
-	return MemoryRepository{}
+	return MemoryRepository{items: make(map[string]MemDigitalObject)}
 }
 
 func (r MemoryRepository) FindPid(pid string) (DigitalObject, error) {
@@ -34,6 +24,16 @@ func (r MemoryRepository) FindPid(pid string) (DigitalObject, error) {
 	return MemDigitalObject{}, nil
 }
 
+type MemDigitalObject struct {
+	ObjectInfo
+	ds []MemDatastream
+}
+
+type MemDatastream struct {
+	DatastreamInfo
+	content string
+}
+
 func (mdo MemDigitalObject) Info() *ObjectInfo {
 	return &mdo.ObjectInfo
 }
@@ -44,15 +44,6 @@ func (mdo MemDigitalObject) DsNames() []string {
 		result = addIfNew(result, dsInfo.Name)
 	}
 	return result
-}
-
-func addIfNew(list []string, text string) []string {
-	for _, s := range list {
-		if s == text {
-			return list
-		}
-	}
-	return append(list, text)
 }
 
 func (mdo MemDigitalObject) DsInfo(dsid string, version int) *DatastreamInfo {
@@ -70,6 +61,15 @@ func (mdo MemDigitalObject) DsContent(dsid string, version int) (io.ReadCloser, 
 		return nil, nil
 	}
 	return ioutil.NopCloser(strings.Reader(mdo.ds[i].content)), nil
+}
+
+func addIfNew(list []string, text string) []string {
+	for _, s := range list {
+		if s == text {
+			return list
+		}
+	}
+	return append(list, text)
 }
 
 func findVersion(mdo MemDigitalObject, dsid string, version int) int {
