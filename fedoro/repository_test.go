@@ -4,6 +4,7 @@ import (
 	"testing"
 )
 
+/*
 func newRepo() Repository {
 	return akubra.NewRepository("test-repo", "test-repo")
 }
@@ -22,3 +23,4 @@ func TestFindPid(t *testing.T) {
 		t.Fatalf("Wrong pid: %s", do.Pid)
 	}
 }
+*/

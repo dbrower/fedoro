@@ -106,27 +106,32 @@ func DescribeHandler(res http.ResponseWriter, req *http.Request) {
 # upload # not implemented
 */
 
-/* Read Only APIs
+/* write APIs
+  "management/getNextPID"
+  POST "objects/nextPID"
+  POST "objects/{pid}/datastreams/{dsid}
+  POST objects/{pid}/relationships/new
+  PUT  objects/{pid}/datastreams/{dsid}
+  PUT  objects/{pid}
+  PUT  objects/{pid}/datastreams/{dsid}
 
-   /describe
-   /get/:pid
-   /get/:pid/:ds
-   /getObjectHistory/:pid
-   /listDatastreams/:pid
-   /listMethods/:pid
-   /objects
-   /objects/:pid
-   /objects/:pid/datastreams
-   /objects/:pid/datastreams/:ds
-   /objects/:pid/datastreams/:ds/content
-   /objects/:pid/datastreams/:ds/history
-   /objects/:pid/export
-   /objects/:pid/methods
-   /objects/:pid/objectXML
-   /objects/:pid/relationships
-   /objects/:pid/validate
-   /objects/:pid/versions
-   /search
+  GET  oai?verb=Identify
+
+  DELETE objects/{pid}/datastreams/{dsid}
+  DELETE objects/{pid}
+
+# unimplemented API tests:
+#
+# resumeFindObjectsLite # not implemented
+# uploadFileLite # not implemented
+# describeRepository # This entry has not been implemented by Fedora
+# resumeFindObjects # not implemented
+# getDissemination # not implemented
+# compareDatastreamChecksum # not implemented
+# ingest # not implemented
+# purgeRelationship # not implemented
+# upload # not implemented
+
 */
 
 func main() {
@@ -136,7 +141,24 @@ func main() {
 
 	r := mux.NewRouter()
 	r.HandleFunc("/describe", DescribeHandler).Methods("GET", "HEAD")
+	r.HandleFunc("/objects/{pid}")
 	r.HandleFunc("/objects/{pid}/datastreams", fedoro.ListDatastreamsHandler).Methods("GET", "HEAD")
+	r.HandleFunc("/objects/{pid}/datastreams/{dsid}")
+	r.HandleFunc("/objects/{pid}/datastreams/{dsid}/content")
+	r.HandleFunc("/objects/{pid}/datastreams/{dsid}/history")
+	r.HandleFunc("/objects/{pid}/export")
+	r.HandleFunc("/objects/{pid}/methods")
+	r.HandleFunc("/objects/{pid}/objectXML")
+	r.HandleFunc("/objects/{pid}/relationships")
+	r.HandleFunc("/objects/{pid}/validate")
+	r.HandleFunc("/objects/{pid}/versions")
+	r.HandleFunc("/search")
+	r.HandleFunc("/get/{pid}")
+	r.HandleFunc("/get/{pid}/{dsid}")
+	r.HandleFunc("/getObjectHistory/{pid}")
+	r.HandleFunc("/listDatastreams/{pid}")
+	r.HandleFunc("/listMethods/{pid}")
+
 	err := http.ListenAndServe(":8080", r)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)

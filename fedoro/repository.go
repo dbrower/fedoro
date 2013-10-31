@@ -13,9 +13,16 @@ type Repository interface {
 	// Find the object with the given identifier.
 	// errors: could not find pid, or possibly other errors
 	FindPid(pid string) (DigitalObject, error)
+
 	// Create a new object and return a DigitalObject which represents it
 	// It is the callers responsibility to choose the PID of the new object
+	// Undefined behavior if an object with the pid already exists
 	NewObject(obj ObjectInfo) (DigitalObject, error)
+
+	// Remove the given object from the repository, if it is there.
+	// No error if the object does not exist
+	// Could have errors if there was a problem removing the object
+	RemoveObject(pid string) error
 }
 
 type DigitalObject interface {
@@ -26,18 +33,22 @@ type DigitalObject interface {
 	// other is specific to the version asked for.
 	// Set version to -1 to get information about the newest version
 	DsInfo(dsid string, version int) *DatastreamInfo
+
 	// Get the content for datastream dsid at the given version (0 is first version, 1 is next, etc.)
 	// Set version to -1 to always get the newest version
 	DsContent(dsid string, version int) (io.ReadCloser, error)
 
-	/*
-	   // Update the object's info to what is given
-	   UpdateInfo(obj *ObjectInfo) error
-	   // Create a new datastream
-	   AddDatastream(dsinfo *DatastreamInfo) error
-	   // create a new version of a datastream
-	   ReplaceContent(dsid string, r io.Reader) error
-	*/
+	// These are the write routines
+	// Update the object's info to what is given.
+	// The fields `CreatedDate` and `ModifiedDate` are ignored
+	// To only update a portion of the object, first use Info() to fill out the ObjectInfo structure
+	UpdateInfo(obj *ObjectInfo) error
+
+	// Update (or create) the metadata for the given datastream
+	UpdateDatastream(dsinfo *DatastreamInfo) error
+
+	// create a new version of the given datastream with the content given by `r`
+	ReplaceContent(dsid string, r io.Reader) error
 }
 
 // The general information about a digital object
@@ -57,11 +68,12 @@ type DatastreamInfo struct {
 	ControlGroup rune   // 'X', 'M', 'E'
 	Versionable  bool   // Does this ds keep previous versions of its content? true == yes.
 	NumVersions  int    // >= 1
+
 	// All the following only refer to the current version of the datastream
 	Id         string // The full identity of this version of the datastream, e.g. "RELS-EXT.0"
 	Label      string // The supplied human readable name for the content
 	Created    time.Time
 	Mimetype   string
 	Format_uri string // Not sure what this is
-	Size       uint
+	Size       int
 }

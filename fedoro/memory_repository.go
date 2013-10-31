@@ -3,7 +3,9 @@ package fedoro
 import (
 	"io"
 	"io/ioutil"
+	"strconv"
 	"strings"
+	"time"
 )
 
 type MemoryRepository struct {
@@ -22,6 +24,19 @@ func (r MemoryRepository) FindPid(pid string) (DigitalObject, error) {
 	}
 	// should be an error instead of nil
 	return MemDigitalObject{}, nil
+}
+
+func (r MemoryRepository) NewObject(obj ObjectInfo) (DigitalObject, error) {
+	result := MemDigitalObject{
+		ObjectInfo: obj,
+	}
+	r.items[obj.Pid] = result
+	return result, nil
+}
+
+func (r MemoryRepository) RemoveObject(pid string) error {
+	delete(r.items, pid)
+	return nil
 }
 
 type MemDigitalObject struct {
@@ -60,7 +75,51 @@ func (mdo MemDigitalObject) DsContent(dsid string, version int) (io.ReadCloser, 
 		// TODO: return error
 		return nil, nil
 	}
-	return ioutil.NopCloser(strings.Reader(mdo.ds[i].content)), nil
+	return ioutil.NopCloser(strings.NewReader(mdo.ds[i].content)), nil
+}
+
+func (mdo MemDigitalObject) UpdateInfo(obj *ObjectInfo) error {
+	mdo.ObjectInfo = *obj
+	return nil
+}
+
+func (mdo MemDigitalObject) UpdateDatastream(dsinfo *DatastreamInfo) error {
+	ver := findVersion(mdo, dsinfo.Name, -1)
+	if ver == -1 {
+		// TODO: return error
+		return nil
+	}
+	mdo.ds[ver].DatastreamInfo = *dsinfo
+	return nil
+}
+
+func (mdo MemDigitalObject) ReplaceContent(dsid string, r io.Reader) error {
+	var newDs MemDatastream
+
+	ver := findVersion(mdo, dsid, -1)
+	if ver == -1 {
+		newDs.Name = dsid
+		newDs.State = 'A'
+		newDs.ControlGroup = 'X'
+		newDs.Versionable = true
+	} else {
+		newDs = mdo.ds[ver]
+	}
+
+	newDs.NumVersions += 1
+	newDs.Id = newDs.Name + "." + strconv.Itoa(newDs.NumVersions-1)
+	newDs.Created = time.Now()
+
+	data, err := ioutil.ReadAll(r)
+	if err != nil {
+		return err
+	}
+
+	newDs.content = string(data)
+	newDs.Size = len(data)
+
+	mdo.ds = append(mdo.ds, newDs)
+	return nil
 }
 
 func addIfNew(list []string, text string) []string {
@@ -81,7 +140,7 @@ func findVersion(mdo MemDigitalObject, dsid string, version int) int {
 			v := decodeVersion(ds.Id)
 			if v == targetVersion {
 				return i
-			} else if best == nil || v >= bestVersion {
+			} else if best == -1 || v >= bestVersion {
 				best = i
 				bestVersion = v
 			}
@@ -92,5 +151,5 @@ func findVersion(mdo MemDigitalObject, dsid string, version int) int {
 
 func decodeVersion(s string) int {
 	suffix := strings.Scanl(s, ".")
-	return strings.atoi(suffix)
+	return strconv.Atoi(suffix)
 }
