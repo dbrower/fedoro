@@ -5,10 +5,11 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/gorilla/mux"
 
-	"github.com/dbrower/fedoro/akubra"
+	_ "github.com/dbrower/fedoro/akubra"
 	"github.com/dbrower/fedoro/fedoro"
 )
 
@@ -137,27 +138,30 @@ func DescribeHandler(res http.ResponseWriter, req *http.Request) {
 func main() {
 	fmt.Println("Starting Fedoro")
 
-	fedoro.MainRepo = akubra.NewRepository("fedoro/test-repo", "fedoro/test-repo")
+	repo := fedoro.NewMemRepo()
+	do, _ := repo.NewObject(fedoro.ObjectInfo{Pid: "dummy:1234"})
+	do.ReplaceContent("test", strings.NewReader("this is test content!!!"))
+	fedoro.MainRepo = repo
 
 	r := mux.NewRouter()
 	r.HandleFunc("/describe", DescribeHandler).Methods("GET", "HEAD")
-	r.HandleFunc("/objects/{pid}")
+	//r.HandleFunc("/objects/{pid}")
 	r.HandleFunc("/objects/{pid}/datastreams", fedoro.ListDatastreamsHandler).Methods("GET", "HEAD")
-	r.HandleFunc("/objects/{pid}/datastreams/{dsid}")
-	r.HandleFunc("/objects/{pid}/datastreams/{dsid}/content")
-	r.HandleFunc("/objects/{pid}/datastreams/{dsid}/history")
-	r.HandleFunc("/objects/{pid}/export")
-	r.HandleFunc("/objects/{pid}/methods")
-	r.HandleFunc("/objects/{pid}/objectXML")
-	r.HandleFunc("/objects/{pid}/relationships")
-	r.HandleFunc("/objects/{pid}/validate")
-	r.HandleFunc("/objects/{pid}/versions")
-	r.HandleFunc("/search")
-	r.HandleFunc("/get/{pid}")
-	r.HandleFunc("/get/{pid}/{dsid}")
-	r.HandleFunc("/getObjectHistory/{pid}")
-	r.HandleFunc("/listDatastreams/{pid}")
-	r.HandleFunc("/listMethods/{pid}")
+	//r.HandleFunc("/objects/{pid}/datastreams/{dsid}")
+	r.HandleFunc("/objects/{pid}/datastreams/{dsid}/content", fedoro.DatastreamDisseminationHandler).Methods("GET", "HEAD")
+	//r.HandleFunc("/objects/{pid}/datastreams/{dsid}/history")
+	//r.HandleFunc("/objects/{pid}/export")
+	//r.HandleFunc("/objects/{pid}/methods")
+	//r.HandleFunc("/objects/{pid}/objectXML")
+	//r.HandleFunc("/objects/{pid}/relationships")
+	//r.HandleFunc("/objects/{pid}/validate")
+	//r.HandleFunc("/objects/{pid}/versions")
+	//r.HandleFunc("/search")
+	//r.HandleFunc("/get/{pid}")
+	//r.HandleFunc("/get/{pid}/{dsid}")
+	//r.HandleFunc("/getObjectHistory/{pid}")
+	//r.HandleFunc("/listDatastreams/{pid}")
+	//r.HandleFunc("/listMethods/{pid}")
 
 	err := http.ListenAndServe(":8080", r)
 	if err != nil {

@@ -35,7 +35,7 @@ type DatastreamVersion struct {
 	Created         time.Time       `xml:"CREATED,attr"`
 	Mimetype        string          `xml:"MIMETYPE,attr"`
 	Format_uri      string          `xml:"FORMAT_URI,attr"`
-	Size            uint            `xml:"SIZE,attr"`
+	Size            int             `xml:"SIZE,attr"`
 	XmlContent      XmlContent      `xml:"xmlContent"`
 	ContentLocation ContentLocation `xml:"contentLocation"`
 }

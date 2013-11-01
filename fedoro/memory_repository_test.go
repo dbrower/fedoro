@@ -15,6 +15,7 @@ func TestReplaceContent(t *testing.T) {
 	}
 
 	mdo := &MemDigitalObject{}
+	buffer := make([]byte, 100)
 
 	for i := range table {
 		dsid := table[i].dsid
@@ -27,7 +28,6 @@ func TestReplaceContent(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		buffer := make([]byte, 100)
 		n, err := r.Read(buffer)
 		if err != nil {
 			t.Fatal(err)
@@ -37,7 +37,6 @@ func TestReplaceContent(t *testing.T) {
 			t.Errorf("Expected %v, got %v", table[i], data)
 		}
 	}
-	t.Logf("%+v", mdo)
 }
 
 func TestAddIfNew(t *testing.T) {
