@@ -7,30 +7,29 @@ import (
 
 func setupRepo(t *testing.T) Repository {
 	r := NewMemRepo()
-	obj := ObjectInfo{
-		Pid: "vecnet:x920fw85p",
-	}
-	do, err := r.NewObject(obj)
-	if err != nil {
-		t.Fatal(err)
-	}
-	dsinfo := DatastreamInfo{
-		Name:         "test",
-		ControlGroup: 'M',
-		Versionable:  true,
-	}
-	err = do.UpdateDatastream(&dsinfo)
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = do.ReplaceContent("test", strings.NewReader("This is a test datastream"))
-	if err != nil {
-		t.Fatal(err)
-	}
+	do := makeObject(t, r, "dummy:1")
+	addContent(t, do, "test", "This is a test datastream")
+	addContent(t, do, "test", "This is another test datastream")
 	return r
+}
+
+func makeObject(t *testing.T, r Repository, pid string) DigitalObject {
+	do, err := r.NewObject(ObjectInfo{Pid: pid})
+	if err != nil {
+		t.Fatal(err)
+	}
+	return do
+}
+
+func addContent(t *testing.T, do DigitalObject, dsid string, content string) {
+	err := do.ReplaceContent(dsid, strings.NewReader(content))
+	if err != nil {
+		t.Fatal(err)
+	}
 }
 
 func TestListDatastreams(t *testing.T) {
 	r := setupRepo(t)
-	ListDatastreams(r, "vecnet:x920fw85p")
+	result, _ := ListDatastreams(r, "dummy:1")
+	t.Log(result)
 }

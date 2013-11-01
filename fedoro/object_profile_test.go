@@ -1,7 +1,6 @@
 package fedoro
 
 import (
-	"fmt"
 	"strings"
 	"testing"
 
@@ -25,9 +24,9 @@ func TestObjectModels(t *testing.T) {
 		if !ok {
 			break
 		}
-		fmt.Println(b)
+		t.Log(b)
 		if b.Predicate.String() == "info:fedora/fedora-system:def/model#hasModel" {
-			fmt.Println("@@@ Is a Model")
+			t.Log("@@@ Is a Model")
 		}
 	}
 }
