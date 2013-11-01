@@ -135,6 +135,11 @@ func DescribeHandler(res http.ResponseWriter, req *http.Request) {
 
 */
 
+type handlerEntry struct {
+	path string
+	f    http.HandlerFunc
+}
+
 func main() {
 	fmt.Println("Starting Fedoro")
 
@@ -143,12 +148,14 @@ func main() {
 	do.ReplaceContent("test", strings.NewReader("this is test content!!!"))
 	fedoro.MainRepo = repo
 
-	r := mux.NewRouter()
-	r.HandleFunc("/describe", DescribeHandler).Methods("GET", "HEAD")
-	//r.HandleFunc("/objects/{pid}")
-	r.HandleFunc("/objects/{pid}/datastreams", fedoro.ListDatastreamsHandler).Methods("GET", "HEAD")
-	//r.HandleFunc("/objects/{pid}/datastreams/{dsid}")
-	r.HandleFunc("/objects/{pid}/datastreams/{dsid}/content", fedoro.DatastreamDisseminationHandler).Methods("GET", "HEAD")
+	route_table_get := []handlerEntry{
+		{"/describe", DescribeHandler},
+		{"/objects/{pid}", fedoro.ObjectProfileHandler},
+		{"/objects/{pid}/datastreams", fedoro.ListDatastreamsHandler},
+		{"/objects/{pid}/datastreams/{dsid}", fedoro.GetDatastreamHandler},
+		{"/objects/{pid}/datastreams/{dsid}/content", fedoro.DatastreamDisseminationHandler},
+	}
+
 	//r.HandleFunc("/objects/{pid}/datastreams/{dsid}/history")
 	//r.HandleFunc("/objects/{pid}/export")
 	//r.HandleFunc("/objects/{pid}/methods")
@@ -163,8 +170,46 @@ func main() {
 	//r.HandleFunc("/listDatastreams/{pid}")
 	//r.HandleFunc("/listMethods/{pid}")
 
+	r := mux.NewRouter()
+	installHandlers(r, route_table_get, "GET")
+	installHandlers(r, route_table_get, "HEAD")
+
+	route_table_post := []handlerEntry{
+		{"/objects/{pid}/datastreams/{dsid}", fedoro.AddDatastreamHandler},
+		{"/objects/{pid}/relationships/new", notImplementedHandler},
+	}
+
+	installHandlers(r, route_table_post, "POST")
+
+	route_table_put := []handlerEntry{
+		{"/objects/{pid}/datastreams/{dsid}", notImplementedHandler},
+		{"/objects/{pid}", notImplementedHandler},
+		{"/objects/{pid}/datastreams/{dsid}", notImplementedHandler},
+	}
+
+	installHandlers(r, route_table_put, "PUT")
+
 	err := http.ListenAndServe(":8080", r)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}
+}
+
+func installHandlers(r *mux.Router, routes []handlerEntry, method string) {
+	for _, entry := range routes {
+		r.HandleFunc(entry.path, handlerWrapper(entry.f)).Methods(method)
+	}
+}
+
+func handlerWrapper(f http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("%s %s %s", r.RemoteAddr, r.Method, r.URL)
+		f(w, r)
+	}
+}
+
+func notImplementedHandler(res http.ResponseWriter, req *http.Request) {
+	res.Header().Add("Content-Type", "text/html")
+	res.WriteHeader(http.StatusNotImplemented)
+	res.Write([]byte("Not Implemented"))
 }

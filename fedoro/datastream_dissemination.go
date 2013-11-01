@@ -4,6 +4,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 )
@@ -35,12 +36,15 @@ func DatastreamDisseminationHandler(res http.ResponseWriter, req *http.Request) 
 		res.Write([]byte("cannot find content"))
 		return
 	}
+	defer data.Close()
 	mime := ds.Mimetype
 	if mime == "" {
-		mime = ""
+		mime = "text/plain"
 	}
 	res.Header().Add("Content-Type", mime)
+	res.Header().Add("Content-Length", strconv.Itoa(ds.Size))
 
-	io.Copy(res, data)
-	data.Close()
+	if req.Method == "GET" {
+		io.Copy(res, data)
+	}
 }

@@ -30,6 +30,12 @@ func (r MemoryRepository) NewObject(obj ObjectInfo) (DigitalObject, error) {
 	now := time.Now()
 	result.CreatedDate = now
 	result.ModifiedDate = now
+	if result.State == "" {
+		result.State = "A"
+	}
+	if result.OwnerId == "" {
+		result.OwnerId = "fedoraAdmin"
+	}
 	r.items[obj.Pid] = &result
 	return &result, nil
 }

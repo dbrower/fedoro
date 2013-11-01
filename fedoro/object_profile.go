@@ -2,7 +2,7 @@ package fedoro
 
 import (
 	"encoding/xml"
-	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -30,7 +30,7 @@ func ObjectProfile(r Repository, pid string) (*objectProfile, error) {
 	object, err := r.FindPid(pid)
 	if err != nil {
 		// TODO
-		fmt.Println(err)
+		log.Println(err)
 		return nil, err
 	}
 
@@ -57,10 +57,14 @@ func ObjectProfileHandler(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	// TODO: sanitize pid?
 	pid := vars["pid"]
+	// TODO: add asOfDateTime
+
+	log.Printf("ObjectProfileHandler: pid = %v", pid)
 
 	result, err := ObjectProfile(MainRepo, pid)
 	if err != nil {
 		res.WriteHeader(http.StatusNotFound)
+		res.Write([]byte("Not Found"))
 		return
 	}
 
@@ -71,5 +75,7 @@ func ObjectProfileHandler(res http.ResponseWriter, req *http.Request) {
 		res.Header().Add("Content-Type", "text/xml")
 		e := xml.NewEncoder(res)
 		e.Encode(result)
+	} else {
+		res.Write([]byte("add ?format=xml"))
 	}
 }
