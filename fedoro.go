@@ -189,6 +189,8 @@ func main() {
 
 	installHandlers(r, route_table_put, "PUT")
 
+	r.NotFoundHandler = handlerWrapper(notFoundHandler)
+
 	err := http.ListenAndServe(":8080", r)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
@@ -212,4 +214,10 @@ func notImplementedHandler(res http.ResponseWriter, req *http.Request) {
 	res.Header().Add("Content-Type", "text/html")
 	res.WriteHeader(http.StatusNotImplemented)
 	res.Write([]byte("Not Implemented"))
+}
+
+func notFoundHandler(res http.ResponseWriter, req *http.Request) {
+	res.Header().Add("Content-Type", "text/html")
+	res.WriteHeader(http.StatusNotFound)
+	res.Write([]byte("Not Found"))
 }

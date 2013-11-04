@@ -1,4 +1,3 @@
-
 package fedoro
 
 import (
@@ -9,14 +8,22 @@ import (
 	"github.com/gorilla/mux"
 )
 
-
 func AddDatastreamHandler(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	// TODO: sanitize values?
 	pid := vars["pid"]
 	dsid := vars["dsid"]
 
-	req.ParseMultipartForm(2000000000) // 2GB limit
+	//req.ParseMultipartForm(2000000000) // 2GB limit
+	//reader, err := req.MultipartReader()
+	//if err != nil {
+	//	res.WriteHeader(http.StatusNotFound)
+	//	res.Write([]byte(err.Error()))
+	//	return
+	//}
+
+	req.ParseForm()
+
 	controlGroup := req.Form.Get("controlGroup")
 	//dsLocation := req.Form.Get("dsLocation")
 	//altId := req.Form.Get("dsLabel")
@@ -38,25 +45,30 @@ func AddDatastreamHandler(res http.ResponseWriter, req *http.Request) {
 
 	// TODO: validate input here
 
-
 	do.UpdateDatastream(&DatastreamInfo{
-		Name: dsid,
-		State: rune(dsState[0]),
-		ControlGroup: rune(controlGroup[0]),
-		Versionable: aToBool(versionable),
-		Label: dsLabel,
-		Created:   time.Now(),
-		Mimetype: mimetype,
-		Format_uri: formatUri,
+		Name:         dsid,
+		State:        aToRune(dsState),
+		ControlGroup: aToRune(controlGroup),
+		Versionable:  aToBool(versionable),
+		Label:        dsLabel,
+		Created:      time.Now(),
+		Mimetype:     mimetype,
+		Format_uri:   formatUri,
 	})
 
-	log.Println(req.MultipartForm.File)
+	log.Printf("%+v\n", req.FormValue("body"))
 
 	//do.ReplaceContent(dsid, r)
 
 	res.WriteHeader(201)
 }
 
+func aToRune(s string) rune {
+	if len(s) > 0 {
+		return rune(s[0])
+	}
+	return ' '
+}
 
 func aToBool(s string) bool {
 	switch s {
