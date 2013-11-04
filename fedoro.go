@@ -141,6 +141,7 @@ type handlerEntry struct {
 }
 
 func main() {
+    log.SetFlags(log.Ldate | log.Ltime | log.Lmicroseconds)
 	fmt.Println("Starting Fedoro")
 
 	repo := fedoro.NewMemRepo()
@@ -149,7 +150,7 @@ func main() {
 	fedoro.MainRepo = repo
 
 	route_table_get := []handlerEntry{
-		{"/describe", DescribeHandler},
+		{"/describe", fedoro.DescribeHandler},
 		{"/objects/{pid}", fedoro.ObjectProfileHandler},
 		{"/objects/{pid}/datastreams", fedoro.ListDatastreamsHandler},
 		{"/objects/{pid}/datastreams/{dsid}", fedoro.GetDatastreamHandler},
@@ -177,6 +178,8 @@ func main() {
 	route_table_post := []handlerEntry{
 		{"/objects/{pid}/datastreams/{dsid}", fedoro.AddDatastreamHandler},
 		{"/objects/{pid}/relationships/new", notImplementedHandler},
+		{"/objects/{pid}", fedoro.IngestHandler},
+		{"/objects", fedoro.IngestHandler},
 	}
 
 	installHandlers(r, route_table_post, "POST")

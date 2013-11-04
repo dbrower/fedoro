@@ -25,16 +25,16 @@ func AddDatastreamHandler(res http.ResponseWriter, req *http.Request) {
 	req.ParseForm()
 
 	controlGroup := req.Form.Get("controlGroup")
-	//dsLocation := req.Form.Get("dsLocation")
-	//altId := req.Form.Get("dsLabel")
 	dsLabel := req.Form.Get("dsLabel")
 	versionable := req.Form.Get("versionable")
 	dsState := req.Form.Get("dsState")
 	formatUri := req.Form.Get("formatURI")
+	mimetype := req.Form.Get("mimeType")
+	//dsLocation := req.Form.Get("dsLocation")
+	//altId := req.Form.Get("dsLabel")
+	//logMessage := req.Form.Get("logMessage")
 	//checksumType := req.Form.Get("checksumType")
 	//checksum := req.Form.Get("checksum")
-	mimetype := req.Form.Get("mimeType")
-	//logMessage := req.Form.Get("logMessage")
 
 	do, err := MainRepo.FindPid(pid)
 	if err != nil {
@@ -56,9 +56,9 @@ func AddDatastreamHandler(res http.ResponseWriter, req *http.Request) {
 		Format_uri:   formatUri,
 	})
 
-	log.Printf("%+v\n", req.FormValue("body"))
+    log.Printf("Add Datastream, %v\n", do)
 
-	//do.ReplaceContent(dsid, r)
+	do.ReplaceContent(dsid, req.Body)
 
 	res.WriteHeader(201)
 }
