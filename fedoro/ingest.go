@@ -1,8 +1,7 @@
-
 package fedoro
 
 import (
-    "log"
+	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -24,33 +23,32 @@ func IngestHandler(res http.ResponseWriter, req *http.Request) {
 
 	// TODO: validate input here
 
-    obj := ObjectInfo{}
-    obj.Pid = pid
-    if len(pid) == 0 || pid == "new" {
-        if len(namespace) == 0 {
-            namespace = "dummy"
-        }
-        obj.Pid = namespace + ":" + "1"
-    }
-    if len(label) > 0 {
-        obj.Label = label
-    }
-    if len(ownerId) > 0 {
-        obj.OwnerId = ownerId
-    }
-    obj.State = "A"
+	obj := ObjectInfo{}
+	obj.Pid = pid
+	if len(pid) == 0 || pid == "new" {
+		if len(namespace) == 0 {
+			namespace = "dummy"
+		}
+		obj.Pid = namespace + ":" + "1"
+	}
+	if len(label) > 0 {
+		obj.Label = label
+	}
+	if len(ownerId) > 0 {
+		obj.OwnerId = ownerId
+	}
+	obj.State = "A"
 
-    _, err := MainRepo.NewObject(obj)
-    if err != nil {
-        log.Println(err)
-        res.WriteHeader(403)
-        res.Write([]byte(err.Error()))
-        return
-    }
+	_, err := MainRepo.NewObject(obj)
+	if err != nil {
+		log.Println(err)
+		res.WriteHeader(403)
+		res.Write([]byte(err.Error()))
+		return
+	}
 
-    res.Header().Add("Location", "http://localhost:8080/objects/" + obj.Pid)
+	res.Header().Add("Location", "http://localhost:8080/objects/"+obj.Pid)
 
 	res.WriteHeader(201)
-    res.Write([]byte(obj.Pid))
+	res.Write([]byte(obj.Pid))
 }
-

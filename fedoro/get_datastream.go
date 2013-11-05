@@ -35,6 +35,14 @@ type DatastreamProfile struct {
 	SchemaLocation string `xml:"xsi:schemaLocation,attr"`
 }
 
+type dsError struct {
+	s string
+}
+
+func (e dsError) Error() string {
+	return e.s
+}
+
 func filloutDatastreamProfile(r Repository, pid string, dsid string) (*DatastreamProfile, error) {
 	object, err := r.FindPid(pid)
 	if err != nil {
@@ -42,17 +50,16 @@ func filloutDatastreamProfile(r Repository, pid string, dsid string) (*Datastrea
 		return nil, err
 	}
 
-	dsinfo, err := object.DsInfo(dsid, -1)
-    if err != nil {
-        log.Println(err)
-        return nil, err
-    }
+	dsinfo := object.DsInfo(dsid, -1)
+	if dsinfo == nil {
+		return nil, dsError{"Can not find datastream"}
+	}
 
 	result := &DatastreamProfile{
 		Pid:          pid,
 		Dsid:         dsid,
 		Label:        dsinfo.Label,
-		Version:      dsid + "." + strconv.Itoa(dsinfo.NumVersions - 1),
+		Version:      dsid + "." + strconv.Itoa(dsinfo.NumVersions-1),
 		CreateDate:   dsinfo.Created,
 		State:        string(dsinfo.State),
 		Mimetype:     dsinfo.Mimetype,

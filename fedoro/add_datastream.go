@@ -56,7 +56,7 @@ func AddDatastreamHandler(res http.ResponseWriter, req *http.Request) {
 		Format_uri:   formatUri,
 	})
 
-    log.Printf("Add Datastream, %v\n", do)
+	log.Printf("Add Datastream, %v\n", do)
 
 	do.ReplaceContent(dsid, req.Body)
 

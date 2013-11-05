@@ -141,7 +141,7 @@ type handlerEntry struct {
 }
 
 func main() {
-    log.SetFlags(log.Ldate | log.Ltime | log.Lmicroseconds)
+	log.SetFlags(log.Ldate | log.Ltime | log.Lmicroseconds)
 	fmt.Println("Starting Fedoro")
 
 	repo := fedoro.NewMemRepo()

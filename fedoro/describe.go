@@ -1,4 +1,3 @@
-
 package fedoro
 
 import (
@@ -7,9 +6,9 @@ import (
 )
 
 type fedoraRepository struct {
-	RepositoryName              string    `xml:"repositoryName"`
-	RepositoryBaseUrl            string    `xml:"repositoryBaseURL"`
-	RepositoryVersion          string    `xml:"repositoryVersion"`
+	RepositoryName    string `xml:"repositoryName"`
+	RepositoryBaseUrl string `xml:"repositoryBaseURL"`
+	RepositoryVersion string `xml:"repositoryVersion"`
 	// boilerplate
 	//Xmlns          string `xml:"xmlns,attr"`
 	//Xsd            string `xml:"xmlns:xsd,attr"`
@@ -17,14 +16,13 @@ type fedoraRepository struct {
 	//SchemaLocation string `xml:"xsi:schemaLocation,attr"`
 }
 
-
 func DescribeHandler(res http.ResponseWriter, req *http.Request) {
 
-    result := fedoraRepository{
-        RepositoryName: "Fedora",
-        RepositoryBaseUrl: "localhost:8080",
-        RepositoryVersion: "3.7",
-    }
+	result := fedoraRepository{
+		RepositoryName:    "Fedora",
+		RepositoryBaseUrl: "localhost:8080",
+		RepositoryVersion: "3.7",
+	}
 
 	inXml := req.FormValue("xml")
 
