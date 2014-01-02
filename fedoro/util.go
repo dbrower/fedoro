@@ -12,7 +12,7 @@ func ObjectModels(do DigitalObject) []string {
 
 	content, err := do.DsContent("RELS-EXT", -1)
 	if err != nil {
-		// TODO: handle error. proprogate it or empty array?
+		// TODO: handle error. propagate it or empty array?
 		return nil
 	}
 	defer content.Close()
