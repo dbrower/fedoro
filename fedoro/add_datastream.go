@@ -11,8 +11,8 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func AddDatastreamHandler(res http.ResponseWriter, req *http.Request) {
-	vars := mux.Vars(req)
+func AddDatastreamHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
 	// TODO: sanitize values?
 	pid := vars["pid"]
 	dsid := vars["dsid"]
@@ -77,8 +77,8 @@ func AddDatastreamHandler(res http.ResponseWriter, req *http.Request) {
 
 	do, err := MainRepo.FindPid(pid)
 	if err != nil {
-		res.WriteHeader(http.StatusNotFound)
-		res.Write([]byte("Not Found"))
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte("Not Found"))
 		return
 	}
 
@@ -97,9 +97,9 @@ func AddDatastreamHandler(res http.ResponseWriter, req *http.Request) {
 
 	log.Printf("Add Datastream, %v\n", do)
 
-	do.ReplaceContent(dsid, req.Body)
+	do.ReplaceContent(dsid, r.Body)
 
-	res.WriteHeader(201)
+	w.WriteHeader(201)
 }
 
 func aToRune(s string) rune {
@@ -110,9 +110,9 @@ func aToRune(s string) rune {
 }
 
 func aToBool(s string) bool {
-	switch s {
-	case "true":
-		return true
-	}
-	return false
+    v, err := strconv.ParseBool(s)
+    if err != nil {
+        v = false
+    }
+    return v
 }
