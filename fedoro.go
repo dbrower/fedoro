@@ -149,7 +149,7 @@ func main() {
 	do.ReplaceContent("test", strings.NewReader("this is test content!!!"))
 	fedoro.MainRepo = repo
 
-	route_table_get := []handlerEntry{
+	routeGet := []handlerEntry{
 		{"/describe", fedoro.DescribeHandler},
 		{"/objects/{pid}", fedoro.ObjectProfileHandler},
 		{"/objects/{pid}/datastreams", fedoro.ListDatastreamsHandler},
@@ -172,25 +172,25 @@ func main() {
 	//r.HandleFunc("/listMethods/{pid}")
 
 	r := mux.NewRouter()
-	installHandlers(r, route_table_get, "GET")
-	installHandlers(r, route_table_get, "HEAD")
+	installHandlers(r, routeGet, "GET")
+	installHandlers(r, routeGet, "HEAD")
 
-	route_table_post := []handlerEntry{
+	routePost := []handlerEntry{
 		{"/objects/{pid}/datastreams/{dsid}", fedoro.AddDatastreamHandler},
 		{"/objects/{pid}/relationships/new", notImplementedHandler},
 		{"/objects/{pid}", fedoro.IngestHandler},
 		{"/objects", fedoro.IngestHandler},
 	}
 
-	installHandlers(r, route_table_post, "POST")
+	installHandlers(r, routePost, "POST")
 
-	route_table_put := []handlerEntry{
-		{"/objects/{pid}/datastreams/{dsid}", notImplementedHandler},
+	routePut := []handlerEntry{
+		{"/objects/{pid}/datastreams/{dsid}", fedoro.ModifyDatastreamHandler},
 		{"/objects/{pid}", notImplementedHandler},
 		{"/objects/{pid}/datastreams/{dsid}", notImplementedHandler},
 	}
 
-	installHandlers(r, route_table_put, "PUT")
+	installHandlers(r, routePut, "PUT")
 
 	r.NotFoundHandler = handlerWrapper(notFoundHandler)
 

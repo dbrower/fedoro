@@ -1,18 +1,40 @@
 package fedoro
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"mime/multipart"
 	"net/http"
 	"net/url"
+	"os"
+	"strconv"
 	"time"
 
 	"github.com/gorilla/mux"
 )
 
-func AddDatastreamHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
+type multiFileReader struct {
+	form *multipart.Form
+	f    *os.File
+	pos  int
+}
+
+func (m *multiFileReader) Read(p []byte) {
+
+}
+
+func (m *multiFileReader) RemoveAll() {
+	if m.f != nil {
+		m.f.Close()
+	}
+	if m.form != nil {
+		m.form.RemoveAll()
+	}
+}
+
+func AddDatastreamHandler(w http.ResponseWriter, req *http.Request) {
+	vars := mux.Vars(req)
 	// TODO: sanitize values?
 	pid := vars["pid"]
 	dsid := vars["dsid"]
@@ -25,38 +47,42 @@ func AddDatastreamHandler(w http.ResponseWriter, r *http.Request) {
 	var f io.Reader
 	var v url.Values
 
-	mp, err := req.MultipartReader()
+	_, err := req.MultipartReader()
 	switch {
 	case err == nil:
 		// a multipart form!
-		form, err := mp.ReadForm(2 << 20)
-		if err != nil {
-		}
-		defer form.RemoveAll()
-		/* fedora takes the first file part. We will take the first part
-		   in the map, but since maps are unordered it may not be the first
-		   in the stream. (But then, why pass more than one file to begin with? */
-		var fh *multipart.FileHeader
-		for _, fh = range form.File {
-			break
-		}
-		if fh == nil {
-			// no file!
-		}
-		file, err := fh.Open()
-		defer file.Close()
-		f = file
-		v = url.Values(form.Value)
+		// we will skip this for now
+
+		// form, err := mp.ReadForm(2 << 20)
+		// if err != nil {
+		// }
+		// defer form.RemoveAll()
+		// /* fedora takes the first file part. We will take the first part
+		//    in the map, but since maps are unordered it may not be the first
+		//    in the stream. (But then, why pass more than one file to begin with? */
+		// var fh []*multipart.FileHeader
+		// for _, fh = range form.File {
+		// 	break
+		// }
+		// if fh == nil {
+		// 	// no files!
+		// }
+		// file, err := fh.Open()
+		// defer file.Close()
+		// f = file
+		// v = url.Values(form.Value)
 
 	case err == http.ErrNotMultipart:
 		// use the body as the datastream contents
 		f = req.Body
 		v, err = url.ParseQuery(req.URL.RawQuery)
 		if err != nil {
+			log.Printf("url.ParseQuery: %s", err)
 		}
 
 	case err != nil:
 		// something strange happened
+		log.Println(err)
 	}
 
 	// Invariants:
@@ -78,13 +104,13 @@ func AddDatastreamHandler(w http.ResponseWriter, r *http.Request) {
 	do, err := MainRepo.FindPid(pid)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
-		w.Write([]byte("Not Found"))
+		fmt.Fprintf(w, "%s Not Found", pid)
 		return
 	}
 
-	// TODO: validate input here
+	// TODO: validate input
 
-	do.UpdateDatastream(&DatastreamInfo{
+	err = do.UpdateDatastream(&DatastreamInfo{
 		Name:         dsid,
 		State:        aToRune(dsState),
 		ControlGroup: aToRune(controlGroup),
@@ -94,10 +120,16 @@ func AddDatastreamHandler(w http.ResponseWriter, r *http.Request) {
 		Mimetype:     mimetype,
 		Format_uri:   formatUri,
 	})
+	if err != nil {
+		log.Println(err)
+	}
 
 	log.Printf("Add Datastream, %v\n", do)
 
-	do.ReplaceContent(dsid, r.Body)
+	err = do.ReplaceContent(dsid, f)
+	if err != nil {
+		log.Println(err)
+	}
 
 	w.WriteHeader(201)
 }
@@ -110,9 +142,9 @@ func aToRune(s string) rune {
 }
 
 func aToBool(s string) bool {
-    v, err := strconv.ParseBool(s)
-    if err != nil {
-        v = false
-    }
-    return v
+	v, err := strconv.ParseBool(s)
+	if err != nil {
+		v = false
+	}
+	return v
 }

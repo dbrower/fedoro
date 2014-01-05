@@ -3,6 +3,7 @@ package fedoro
 import (
 	"io"
 	"io/ioutil"
+	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -113,14 +114,20 @@ func (mdo *MemDigitalObject) ReplaceContent(dsid string, r io.Reader) error {
 		newDs = mdo.ds[ver]
 	}
 
-	newDs.NumVersions += 1
-	newDs.Id = newDs.Name + "." + strconv.Itoa(newDs.NumVersions-1)
+	newDs.Id = newDs.Name + "." + strconv.Itoa(newDs.NumVersions)
+	newDs.NumVersions++
 	newDs.Created = time.Now()
 
 	data, err := ioutil.ReadAll(r)
 	if err != nil {
 		return err
 	}
+	// do not save if there is no content
+	if len(data) == 0 {
+		return nil
+	}
+
+	log.Printf("New contents %s(%d): %x", dsid, ver, data)
 
 	newDs.content = string(data)
 	newDs.Size = len(data)
